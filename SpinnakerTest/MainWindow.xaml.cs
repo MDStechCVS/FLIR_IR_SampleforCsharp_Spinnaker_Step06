@@ -102,15 +102,15 @@ namespace SpinnakerTest
         // NUC 
         private bool bAutoShutter = true;
 
+        // 영상처리
+        private ConcurrentQueue<Bitmap> frameQueue = new ConcurrentQueue<Bitmap>();
+        private bool isProcessing = true;
+        private ImageProcessing processing = new ImageProcessing();
+       // private int selectedIndex = 0;
+        private string selectedItem; 
 
 
         #endregion
-
-        // 영상처리  // imageprocessing
-        private ConcurrentQueue<Bitmap> frameQueue = new ConcurrentQueue<Bitmap>();
-        private bool isProcessing = true;
-
-
 
         #region PUBLIC
 
@@ -783,11 +783,16 @@ namespace SpinnakerTest
                         rVal = 0; 
                     }
 
-                    col = GenerateColorPalette(rVal);
-                    //col = GenerateColorPalette2(rVal);
-                    
+                    if (processingcombo.SelectedIndex == 0) //영상처리가 none인 경우 
+                    {
+                        col = GenerateColorPalette(rVal);
+                    }
+                    else
+                    {
+                        col = GenerateColorGreyPalette(rVal);
+                    }
                    
-  
+                    
                     bmp.SetPixel(x, y, col);
                    
                     
@@ -1007,82 +1012,7 @@ namespace SpinnakerTest
         #endregion
 
 
-        private void StartImageProcessingThread()
-        {
-            Task.Run(() =>
-            {
-                while (isProcessing)
-                {
-                    try
-                    {
-                        if (frameQueue.TryDequeue(out var frame))
-                        {
-                            Bitmap frameCopy;
-
-                            try
-                            {
-                                frameCopy = new Bitmap(frame);
-                            }
-                            catch (InvalidOperationException ex)
-                            {
-                                // 카메라 연결 문제 또는 프레임 상태 문제 처리
-                                Console.WriteLine($"Invalid operation while creating bitmap: {ex.Message}");
-                                continue;
-                            }
-                            catch (Exception ex)
-                            {
-                                // 기타 예외 처리
-                                Console.WriteLine($"Error creating bitmap: {ex.Message}");
-                                continue;
-                            }
-
-                            var processedFrame = ProcessFrame(frameCopy);
-                            Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"An error occurred in the processing thread: {ex.Message}");
-                    }
-                }
-            });
-        }
-        ImageProcessing processing = new ImageProcessing(); 
-        private Bitmap ProcessFrame(Bitmap frame)
-        {
-            // Bitmap의 복사본 생성
-            Bitmap frameCopy = new Bitmap(frame);
-
-            switch (selectedIndex)
-            {
-                case 0: break; 
-                case 1:
-                    frameCopy = processing.Thresholding(frameCopy);
-                    break;
-                case 2:
-                    frameCopy = processing.Grayscale(frameCopy);
-                    break; 
-            }
-    
-            // 영상 처리 코드 (예: 필터 적용, 객체 검출 등)
-            return frameCopy;
-        }
-
-
-        private void DisplayFrame(Bitmap frame)
-        {
-            IntPtr hBitmap = frame.GetHbitmap();
-            BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-
-            if (bmpSrc.CanFreeze)
-                bmpSrc.Freeze();
-
-            this.backgroundImageBrush.ImageSource = bmpSrc;
-
-            DeleteObject(hBitmap);
-
-        }
- 
+       
 
         #region STEP1 - 04. CAMERA TEMPERATURE RANGE CONFIGURATION 
         private void TempRangeConf(INodeMap nodeMap)
@@ -1429,30 +1359,13 @@ namespace SpinnakerTest
             
         }
 
-        private Color GenerateColorPalette2(int rVal)
+        private Color GenerateColorGreyPalette(int rVal)
         {
             try
             {
                 Color col = new Color();
-
-                // Rainbow Palette
-                if (rVal < step) //Blue to Cyan
-                {
-                    col = Color.FromArgb(0, rVal * 4, 255);
-                }
-                else if (rVal < step * 2) //Cyan to Green
-                {
-                    col = Color.FromArgb(0, 255, 255 - (rVal - step) * 4);
-                }
-                else if (rVal < step * 3) //Green to Yellow
-                {
-                    col = Color.FromArgb((rVal - step * 2) * 4, 255, 0);
-                }
-                else //Yellow to Red
-                {
-                    col = Color.FromArgb(255, 255 - (rVal - step * 3) * 4, 0);
-                }
-
+                col = Color.FromArgb(rVal, rVal, rVal); 
+        
                 return col;
             }
             catch (Exception ex)
@@ -1808,33 +1721,143 @@ namespace SpinnakerTest
         }
         #endregion
 
+        #region STEP6 -01. IMAGE PROCESS
+
+        #endregion
+        private void StartImageProcessingThread()
+        {
+            Task.Run(() =>
+            {
+                while (isProcessing)
+                {
+                    try
+                    {
+                        if (frameQueue.TryDequeue(out var frame))
+                        {
+                            Bitmap frameCopy;
+
+                            try
+                            {
+                                frameCopy = new Bitmap(frame);
+                            }
+                            catch (InvalidOperationException ex)
+                            {
+                                // 카메라 연결 문제 또는 프레임 상태 문제 처리
+                                // 카메라 NUC 조정 or 측정 온도 변경 등 잠시 프레임이 전달되지 않는 경우를 위한 예외처리 
+                                Console.WriteLine($"Invalid operation while creating bitmap: {ex.Message}");
+                                continue;
+                            }
+                            catch (Exception ex)
+                            {
+                                // 기타 예외 처리
+                                Console.WriteLine($"Error creating bitmap: {ex.Message}");
+                                continue;
+                            }
+
+                            var processedFrame = ProcessFrame(frameCopy);
+                            Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"An error occurred in the processing thread: {ex.Message}");
+                    }
+                }
+            });
+        }
+
+        private Bitmap ProcessFrame(Bitmap frame)
+        {
+            // Bitmap의 복사본 생성
+            Bitmap frameCopy = new Bitmap(frame);
+
+            try
+            {
+                // 영상 처리 코드 수행
+                switch (selectedItem)
+                {
+                    case "None": break;
+                    case "Thresholding": // 이진화
+                        frameCopy = processing.Thresholding(frameCopy);
+                        break;
+                    case "Grayscale": // 그레이스케일
+                        frameCopy = processing.Grayscale(frameCopy);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+
+            return frameCopy;
+        }
+
+
+        private void DisplayFrame(Bitmap frame)
+        {
+            try
+            {
+                IntPtr hBitmap = frame.GetHbitmap();
+                BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+
+                if (bmpSrc.CanFreeze)
+                    bmpSrc.Freeze();
+
+                this.backgroundImageBrush.ImageSource = bmpSrc;
+
+                DeleteObject(hBitmap);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+
+
         private void processsldInitialize()
         {
-            processing_combo.Items.Add("None"); 
-            processing_combo.Items.Add("Thresholding"); 
-            processing_combo.Items.Add("Grayscale"); 
-
-            processingval.Maximum = 255;
-            processingval.Minimum = 0;
-            processingval.Value = 100;
-
-            ProcessGrid.Visibility = System.Windows.Visibility.Collapsed; 
-        }
-        int selectedIndex = 0; 
-        private void processing_combo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            selectedIndex = processing_combo.SelectedIndex;
-            //processing.SelectedProgress = selectedIndex; 
-
-            switch (selectedIndex)
+            try
             {
-                case 0: // none인 경우 
-                case 2: // grayscale
+                //영상처리 콤보박스 구성
+                processingcombo.Items.Add("None");
+                processingcombo.Items.Add("Thresholding");
+                processingcombo.Items.Add("Grayscale");
+
+                //threshold 값 지정 
+                processingval.Maximum = 255;
+                processingval.Minimum = 0;
+                processingval.Value = 100;
+
+                // 영상처리를 선택하지 않은 상태로 초기화 - threshold 값 조정 UI 숨기기
+                processingcombo.SelectedIndex = 0;
+                selectedItem = "None"; 
+                ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex); 
+            }
+         
+        }
+        
+        private void processingcombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+          
+            selectedItem = processingcombo.SelectedItem.ToString();
+
+            if (selectedItem == null) return; 
+            switch (selectedItem)
+            {
+                // threshold 조정 UI가 전시되지 않는 경우
+                case "None": // none
+                case "Grayscale": // grayscale
                     Palette_ComboBox.IsEnabled = true;
                     ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                     break;
-
-                case 1: // 이진화
+                
+                // threshold 조정 UI가 전시되는 경우 
+                case "Thresholding": // 이진화
                     Palette_ComboBox.IsEnabled = false;
                     ProcessGrid.Visibility = System.Windows.Visibility.Visible;
                     break;

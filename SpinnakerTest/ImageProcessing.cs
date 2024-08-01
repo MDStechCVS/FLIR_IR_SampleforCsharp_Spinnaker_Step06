@@ -13,7 +13,6 @@ namespace SpinnakerTest
     {
         public int thresholdvalue = 100;
 
-       // public int SelectedProgress = 0; 
         /// <summary>
         /// 이진화
         /// </summary>

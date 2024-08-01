@@ -65,7 +65,7 @@
             <ComboBox Name="comboRanges" SelectedIndex="0" Height="25" Width="120"  Grid.Column="3"  SelectionChanged="comboRanges_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
 
             <Label Content="ImageProcessing" Grid.Column="4" Height="30" Width="110"  Margin="0,-30,0,0" FontSize="13"/>
-            <ComboBox Name="processing_combo" SelectedIndex="0" Height="25" Width="100"  Grid.Column="4"  SelectionChanged="processing_combo_SelectionChanged" HorizontalAlignment="Left"  Margin="10,25,0,0"/>
+            <ComboBox Name="processingcombo" SelectedIndex="0" Height="25" Width="100"  Grid.Column="4"  SelectionChanged="processingcombo_SelectionChanged" HorizontalAlignment="Left"  Margin="10,25,0,0"/>
 
         </Grid>
 
