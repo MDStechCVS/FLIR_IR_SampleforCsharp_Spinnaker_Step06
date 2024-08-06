@@ -11,8 +11,13 @@ namespace SpinnakerTest
 {
     class ImageProcessing
     {
-        public int thresholdvalue = 100;
+        #region Private Variable 
 
+        public int thresholdvalue = 80;
+
+        #endregion
+
+        #region ImageProcessing
         /// <summary>
         /// 이진화
         /// </summary>
@@ -22,7 +27,7 @@ namespace SpinnakerTest
         {
             Mat src = BitmapToMat(_bitmap);
             Mat dst = new Mat();
-            Cv2.CvtColor(src, dst, ColorConversionCodes.BGR2GRAY);
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
             Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
             Bitmap processBitmap = MatToBitmap(dst);
             return processBitmap;
@@ -38,13 +43,30 @@ namespace SpinnakerTest
             Mat src = BitmapToMat(_bitmap);
             Mat dst = new Mat();
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
-
             Bitmap processBitmap = MatToBitmap(dst);
-            //processBitmap.Save("processBitmap.png", ImageFormat.Png); 
             return processBitmap;
         }
 
-    
+        /// <summary>
+        /// 이진화
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Edgedetection(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+            Cv2.Canny(src, dst, 100, 500,3, false); 
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
+
+
+        #endregion
+
+        #region Converter
         public Mat BitmapToMat(Bitmap originalBitmap)
         {
             BitmapData bitmapData = null;
@@ -61,8 +83,6 @@ namespace SpinnakerTest
 
                 // Mat 객체 생성
                 mat = new Mat(originalBitmap.Height, originalBitmap.Width, channels == 3 ? MatType.CV_8UC3 : MatType.CV_8UC4);
-                //mat = new Mat(originalBitmap.Height, originalBitmap.Width, MatType.CV_8UC3);
-
 
                 // Bitmap 데이터를 Mat로 복사
                 unsafe
@@ -148,8 +168,7 @@ namespace SpinnakerTest
             return bitmap;
         }
 
-      
-
+        #endregion
 
 
     }

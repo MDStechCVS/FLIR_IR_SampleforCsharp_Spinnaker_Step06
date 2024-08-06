@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:SpinnakerTest"
         mc:Ignorable="d"
-        Title="MainWindow" Height="750" Width="860" Closed="Window_Closed"
+        Title="MainWindow" Height="750" Width="1200" Closed="Window_Closed"
         >
     <Window.Resources>
         <Style x:Key="toggleStyle" BasedOn="{StaticResource {x:Type ToggleButton}}"
@@ -15,7 +15,7 @@
     </Window.Resources>
     <Grid x:Name="LayoutRoot">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="3*"/>
+            <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="10"/>
         </Grid.ColumnDefinitions>
@@ -28,7 +28,7 @@
         </Grid.RowDefinitions>
 
         <Grid x:Name="Image" Grid.Column="0"  Grid.Row="1" Grid.RowSpan="3" Margin="30,10,30,50" Background="AliceBlue">
-            <Canvas x:Name="Ther_Image" HorizontalAlignment="Right" Width="573" >
+            <Canvas x:Name="Ther_Image" HorizontalAlignment="Right" Width="530" >
                 <Canvas.Background >
                     <ImageBrush x:Name="backgroundImageBrush" 
                         Stretch="Uniform" >
@@ -37,12 +37,21 @@
             </Canvas>
         </Grid>
         
+        <Grid x:Name="ProcessImage" Grid.Column="1"  Grid.Row="1" Grid.RowSpan="3" Margin="30,10,30,50" Background="AliceBlue">
+            <Canvas x:Name="Process_Image" HorizontalAlignment="Right" Width="530" >
+                <Canvas.Background >
+                    <ImageBrush x:Name="backgroundProcessImageBrush" 
+                        Stretch="Uniform" >
+                    </ImageBrush>
+                </Canvas.Background>
+            </Canvas>
+        </Grid>
         <Grid x:Name="ProcessGrid" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3">
             <Label Content="Threshold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,15"/>
-            <Slider x:Name="processingval" ValueChanged="Slider_ValueChanged"  IsSnapToTickEnabled="True" VerticalAlignment="Bottom" Margin="50,0,0,20" Width="530"/>
+            <Slider x:Name="processingval" ValueChanged="Slider_ValueChanged"  IsSnapToTickEnabled="True" VerticalAlignment="Bottom" Margin="50,0,0,20" Width="480"/>
             
             <Label Content="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="70,0,0,0"/>
-            <Label Content="255" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="580,0,0,0"/>
+            <Label Content="255" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="530,0,0,0"/>
        
         </Grid>
         
@@ -59,54 +68,37 @@
             <Button x:Name="DisConnectSpinnaker" Width="90" Height="30" Grid.Column="1" Content="Disconnect" HorizontalAlignment="Left" Margin="10,0,0,0" Click="DisConnectSpinnaker_Click" />
 
             <Label   Content="Palette" Grid.Column="2" Height="30" Width="110"  Margin="-20,-30,0,0" FontSize="15"/>
-            <ComboBox  Name="Palette_ComboBox" SelectedIndex="0" Height="25" Width="110"  Grid.Column="2" SelectionChanged="Palette_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
+            <ComboBox  Name="Palette_ComboBox" SelectedIndex="1" Height="25" Width="110"  Grid.Column="2" SelectionChanged="Palette_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
           
             <Label Content="측정 온도 범위" Grid.Column="3" Height="30" Width="110"  Margin="-20,-30,0,0" FontSize="13"/>
             <ComboBox Name="comboRanges" SelectedIndex="0" Height="25" Width="120"  Grid.Column="3"  SelectionChanged="comboRanges_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
 
-            <Label Content="ImageProcessing" Grid.Column="4" Height="30" Width="110"  Margin="0,-30,0,0" FontSize="13"/>
-            <ComboBox Name="processingcombo" SelectedIndex="0" Height="25" Width="100"  Grid.Column="4"  SelectionChanged="processingcombo_SelectionChanged" HorizontalAlignment="Left"  Margin="10,25,0,0"/>
+            <!--<Label Content="ImageProcessing" Grid.Column="4" Height="30" Width="110"  Margin="0,-30,0,0" FontSize="13"/>
+            <ComboBox Name="processingcombo" SelectedIndex="0" Height="25" Width="100"  Grid.Column="4"  SelectionChanged="processingcombo_SelectionChanged" HorizontalAlignment="Left"  Margin="10,25,0,0"/>-->
 
         </Grid>
 
-        <Label Content="Scale" Grid.Column="1"  Grid.Row="1" HorizontalAlignment="Left" FontSize="18" Margin="10,0,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Top"/>
-        <Label Content="자동" Grid.Column="1"  Grid.Row="1" HorizontalAlignment="Left" FontSize="18" Margin="90,0,0,0" Height="40" VerticalAlignment="Top"/>
-        <CheckBox Name="CheckBox" Grid.Column="1"  Grid.Row="1" Width="20" Height="20" Margin="100, -30, 0, 75" Checked="CheckBox_Checked" Unchecked="CheckBox_Unchecked" />
 
-        <Grid x:Name="ScaleSetting"  Grid.Column="1"  Grid.Row="1" >
-            <Label Content="최고" FontSize="18" Height="40" Margin="10,-20,0,0"/>
-            <TextBox x:Name="HighTemp" Width="70" Height="25" Margin="0,-20,0,0" />
+        <Label Content="Full Screen Temp" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18" Margin="10,5,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Top"/>
 
-            <Label Content="최저" FontSize="18" Height="40" Margin="10,60,0,0"/>
-            <TextBox x:Name="LowTemp" Width="70" Height="25" Margin="0,82,0,0" VerticalAlignment="Top" />
-
-            <Label Content=" * 섭씨온도 기준으로 입력 (정수)" Margin="0,113,0,0"/>
-
-            <Button x:Name="SetHighTemp" Content="set" Width="40" Height="30" Margin="140,-20,0,0" Click="SetHighTemp_Click"/>
-            <Button x:Name="SetLowTemp" Content="set" Width="40" Height="30" Margin="140,60,0,0" Click="SetLowTemp_Click"/>
-        </Grid>
+        <Label Content="Max :" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18"  Height="40" VerticalAlignment="Top" Margin="10,30,0,0"/>
+        <Label Content="°C " Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18"  Height="40" VerticalAlignment="Top" Margin="130,30,0,0"/>
+        <Label x:Name="MaxTemp" Content="0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18" Width="60" Height="40" VerticalAlignment="Top" Margin="70,30,0,0"/>
+        <Label Content="Min :" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18"  Height="40"  VerticalAlignment="Top" Margin="210,30,0,00"/>
+        <Label Content="°C " Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18"  Height="40"  VerticalAlignment="Top" Margin="330,30,0,0"/>
+        <Label x:Name="MinTemp" Content="0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18" Width="60" Height="40" VerticalAlignment="Top" Margin="270,30,0,0"/>
 
 
-        <Label Content="Full Screen Temp" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18" Margin="10,5,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Top"/>
-
-        <Label Content="Max :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40" VerticalAlignment="Top" Margin="10,30,100,30"/>
-        <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40" VerticalAlignment="Top" Margin="10,30,50,30"/>
-        <Label x:Name="MaxTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Top" Margin="70,30,90,30"/>
-        <Label Content="Min :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40"  VerticalAlignment="Top" Margin="10,60,100,30"/>
-        <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40"  VerticalAlignment="Top" Margin="10,60,50,30"/>
-        <Label x:Name="MinTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Top" Margin="70,60,90,30"/>
-
-
-        <Label Content="ROI Temp" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18" Margin="10,25,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Center"/>
+        <!--<Label Content="ROI Temp" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18" Margin="10,25,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Center"/>
 
         <Label Content="Max :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40" VerticalAlignment="Center" Margin="10,105,100,30"/>
         <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40" VerticalAlignment="Center" Margin="10,105,50,30"/>
         <Label x:Name="ROIMaxTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Center" Margin="70,105,90,30"/>
         <Label Content="Min :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40"  VerticalAlignment="Center" Margin="10,160,100,30"/>
         <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40"  VerticalAlignment="Center" Margin="10,160,50,30"/>
-        <Label x:Name="ROIMinTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Center" Margin="70,160,90,30"/>
+        <Label x:Name="ROIMinTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Center" Margin="70,160,90,30"/>-->
 
-        <Button x:Name="SetROIBox" Width="95" Height="30" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Set ROI Box" Click="SetROIBox_Click" IsEnabled="False" />
+        <!--<Button x:Name="SetROIBox" Width="95" Height="30" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Set ROI Box" Click="SetROIBox_Click" IsEnabled="False" />
         <Button x:Name="ROIBox_Change" Width="95" Height="30" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="110,0,0,0" Content="ROI Change" IsEnabled="False" Click="ROIBox_Change_Click" />
 
         <Grid x:Name="ROIChange" Grid.Column="1" Grid.Row="3" IsEnabled="False">
@@ -121,26 +113,50 @@
             <TextBox x:Name="ROI_Width" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 125, 0, 0"/>
             <TextBox x:Name="ROI_Height" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 165, 0, 0"/>
 
+        </Grid>-->
+
+
+        <Grid  Grid.Column="0" Grid.Row="4">
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1">
+                <StackPanel Orientation="Horizontal" Margin="10, 5, 5, 5">
+                    <RadioButton Width="45" Height="40" Name="None" ToolTip="None" Focusable="False" IsChecked="True"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="None">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Thresholding" ToolTip="Thresholding" Focusable="False" 
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Thresholding">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Grayscale" ToolTip="Grayscale" Focusable="False"
+                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Grayscale">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="EdgeDetection" ToolTip="EdgeDetection" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Edge&#10;Detection">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Rotate" ToolTip="Rotate" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Rotate">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Erosion" ToolTip="Erosion" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Erosion">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Dilatation" ToolTip="Dilatation" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Dilatation">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Opening" ToolTip="Opening" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Opening">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="Gradient" ToolTip="Gradient" Focusable="False"
+                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Gradient">
+                    </RadioButton>
+                    <RadioButton Width="60" Height="40" Name="HaarCascade" ToolTip="HaarCascade" Focusable="False"
+                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Haar&#10;Cascade">
+                    </RadioButton>
+                </StackPanel>
+                
+            </StackPanel>
         </Grid>
 
-        <Grid Grid.Column="0" Grid.Row="4">
-            <Button Content="JPEG"  Width="50" Height="40" Name="SaveJpegButton" HorizontalAlignment="Right" Margin="0,0,40,0" ToolTip="Save JPEG" Click="SaveJpegButton_Click"></Button>
 
-            <CheckBox x:Name="checkAuto" HorizontalAlignment="Left" Margin="30,10,0,0" Width="20" Checked="CheckAuto_Checked"  Unchecked="CheckAuto_Unchecked"  />
-            <Label Content="자동 NUC" HorizontalAlignment="Left" Height="30" VerticalAlignment="Top" Margin="50,5,0,0"/>
-            <Button x:Name="NUCACTION" HorizontalAlignment="Left" Margin="30,20,0,0" Height="30" Width="30" Content="NUC" Click="NUCACTION_Click"/>
-
-        </Grid>
-
-        <Grid x:Name="FOCUSCONTROL" Grid.Column="0" Grid.Row="4">
-            
-            <Button x:Name="btnNear" Content="+" HorizontalAlignment="Left" Margin="130,20,0,0" Width="30" Height="30" PreviewMouseLeftButtonDown="BtnNear_Click" PreviewMouseLeftButtonUp="MouseButtonUp"/>
-            <Button x:Name="btnAuto" Content="*" HorizontalAlignment="Left" Margin="170,31,0,0" Width="30" Height="30" VerticalAlignment="Top" Click="BtnAuto_Click" />
-            <Button x:Name="btnFar" Content="-" HorizontalAlignment="Left" Margin="210,20,0,0" Width="30" Height="30" PreviewMouseLeftButtonDown="BtnFar_Click" PreviewMouseLeftButtonUp="MouseButtonUp"/>
-        </Grid>
-
-
-        <Image Grid.Column="1" Grid.Row="4" Width="180" Height="40" VerticalAlignment="Bottom" Margin="-10,0,0,30">
+        
+        <Image Grid.Column="1" Grid.Row="4" Width="180" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,10">
             <Image.Source>
                 <BitmapImage UriSource="img/mds.png"/>
             </Image.Source>

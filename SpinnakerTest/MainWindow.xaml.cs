@@ -79,22 +79,22 @@ namespace SpinnakerTest
         private bool isRunning = false;
 
         // 현재 팔레트 
-        private string Current_Palette = "Plasma";
+        private string Current_Palette = "Iron";
 
         // Scale 조정 
         private int _min;
         private int _diff;
         private int _max;
 
-        private int _scalemaxtemp;
-        private int _scalemaxraw;
-        private int _scalemintemp;
-        private int _scaleminraw;
+        //private int _scalemaxtemp;
+        //private int _scalemaxraw;
+        //private int _scalemintemp;
+        //private int _scaleminraw;
 
         private int _mintext = 0;
         private int _maxtext = 0;
 
-        private bool _usecheckbox = false;
+        private bool _usecheckbox = true;
 
         // 이미지 저장 경로 
         private string savepath = @"D:\MDS_Save";
@@ -106,9 +106,15 @@ namespace SpinnakerTest
         private ConcurrentQueue<Bitmap> frameQueue = new ConcurrentQueue<Bitmap>();
         private bool isProcessing = true;
         private ImageProcessing processing = new ImageProcessing();
-       // private int selectedIndex = 0;
-        private string selectedItem; 
+        private string selectedItem;
 
+
+        MDSColorPalette MDSPALETTE = new MDSColorPalette();
+
+        // 16진수 값을 변환하여 ColorMap 생성한 값을 저장 
+        private List<Color> PaletteColorMap = new List<Color>();
+
+        private ImageProcessing imagetogray = new ImageProcessing();
 
         #endregion
 
@@ -285,12 +291,9 @@ namespace SpinnakerTest
             }
         }
 
-        MDSColorPalette MDSPALETTE = new MDSColorPalette();
 
-        // 16진수 값을 변환하여 ColorMap 생성한 값을 저장 
-        private List<Color> PaletteColorMap = new List<Color>();
 
-       
+
 
         #endregion
 
@@ -308,10 +311,7 @@ namespace SpinnakerTest
             Palette_ComboBox_Initialize();
             processsldInitialize();
 
-            CheckBox.IsChecked = true; 
-            ScaleSetting.IsEnabled = false;
-            checkAuto.IsChecked = true;
-            FOCUSCONTROL.IsEnabled = false;
+            
 
             StartImageProcessingThread(); 
         }
@@ -424,10 +424,6 @@ namespace SpinnakerTest
                 cam.BeginAcquisition();
 
                 isRunning = true;
-                SetROIBox.IsEnabled = true;
-                ROIBox_Change.IsEnabled = false;
-                ROIChange.IsEnabled = false;
-                SaveJpegButton.IsEnabled = true; 
 
                 Console.Write("\tDevice {0} ", 0);
                
@@ -453,6 +449,9 @@ namespace SpinnakerTest
                 StringReg iModelName = nodeMap.GetNode<StringReg>("DeviceModelName");
                 string modelname = iModelName.ToString();
 
+                StringReg iManufactureInfo = nodeMap.GetNode<StringReg>("DeviceManufacturerInfo");
+
+                string manufacturerInfo = iManufactureInfo.ToString();
                 // 연결된 카메라의 기종에 따라 Width, Height, parameter 값 설정 
                 if (modelname.Contains("AX5")) // Ax5
                 {
@@ -461,6 +460,7 @@ namespace SpinnakerTest
                     mCurHeight = 256;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
+                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -500,15 +500,24 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "AX5";
-                    FOCUSCONTROL.IsEnabled = false; 
                 }
                 else if (modelname.Contains("PT1000")) // FLIR Axx
                 {
-                    stIntCamFrameArray = int640480;
-                    mCurWidth = 640;
-                    mCurHeight = 480;
+                    if(manufacturerInfo != null && manufacturerInfo.Contains("A320"))
+                    {
+                        stIntCamFrameArray = int320240;
+                        mCurWidth = 320;
+                        mCurHeight = 240;
+                    }
+                    else
+                    {
+                        stIntCamFrameArray = int640480;
+                        mCurWidth = 640;
+                        mCurHeight = 480;
+                    }
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
+                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -532,7 +541,7 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "PT1000";
-                    FOCUSCONTROL.IsEnabled = true;
+                   
 
                 }
                 else if (modelname.Contains("A50")) // A50, A500
@@ -542,6 +551,7 @@ namespace SpinnakerTest
                     mCurHeight = 348;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
+                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -565,7 +575,6 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "A50";
-                    FOCUSCONTROL.IsEnabled = false;
 
                 }
                 else if (modelname.Contains("A70")) // A70, A700
@@ -575,6 +584,7 @@ namespace SpinnakerTest
                     mCurHeight = 480;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
+                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // PixelFormat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -598,11 +608,7 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "A70";
-                    FOCUSCONTROL.IsEnabled = false;
-                    if (modelname.Contains("A700"))
-                    {
-                        FOCUSCONTROL.IsEnabled = true;
-                    }
+                   
                 }
                 else if (modelname.Contains("A400")) // A400
                 {
@@ -611,6 +617,7 @@ namespace SpinnakerTest
                     mCurHeight = 240;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
+                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // PixelFormat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -634,7 +641,6 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "A400";
-                    FOCUSCONTROL.IsEnabled = true; 
                 }
 
                 // 카메라 별 측정 온도 값 구성 및 설정 
@@ -651,10 +657,6 @@ namespace SpinnakerTest
             try
             {
                 isRunning = false;
-                SetROIBox.IsEnabled = false;
-                ROIBox_Change.IsEnabled = false; 
-                ROIChange.IsEnabled = false;
-                SaveJpegButton.IsEnabled = false;
 
                 if (cam.IsStreaming())
                 {
@@ -731,10 +733,12 @@ namespace SpinnakerTest
                 }
 
                 System.Drawing.Color col;
+                System.Drawing.Color processcol;
                 IntPtr hBitmap = IntPtr.Zero;
+                IntPtr hBitmaprocess = IntPtr.Zero;
 
                 //x 는 image의 width
-                //y 는 image의 hediht
+                //y 는 image의 height
                 int x, y;
 
                 // Box 내 영역의 최대 최소 온도값 초기화
@@ -742,31 +746,14 @@ namespace SpinnakerTest
                 {
                     roiBox.ResetMinMax();
                 }
-
                 
                 for (int a = 0; a < data.Length; a++)
                 {
                     getXY(a, mCurWidth, out x, out y);
-                    
-                   // int cnt = PaletteColorMap.Count;
 
-
-                    if (_usecheckbox == true)
-                    {
-                        // Scale 자동 설정 된 경우 - 최소 값과 온도 차이 값을 계속 업데이트 
-
-                        _min = minval;
-                        _max = maxval; 
-                        _diff = _max - _min;
-                    }
-                    else
-                    {
-                        // Scale 수동 설정 된 경우 
-
-                        _min = _scaleminraw;
-                        _max = _scalemaxraw;
-                        _diff = _max - _min; 
-                    }
+                    _min = minval;
+                    _max = maxval;
+                    _diff = _max - _min;
 
                     if (_diff == 0)
                     {
@@ -775,7 +762,6 @@ namespace SpinnakerTest
 
                     int rVal = (int)((data[a] - minval) * 255 / _diff);
 
-
                     // 인덱스가 음수로 나오는 경우 예외처리 
                     // Scale 설정이 수동인 경우 -> 설정한 min 값보다 측정된 온도 값이 더 낮은 경우 
                     if (rVal < 0) 
@@ -783,72 +769,63 @@ namespace SpinnakerTest
                         rVal = 0; 
                     }
 
-                    if (processingcombo.SelectedIndex == 0) //영상처리가 none인 경우 
+                    if (selectedItem == "None") //영상처리가 none인 경우 
                     {
                         col = GenerateColorPalette(rVal);
+                        //processcol = Color.FromArgb(0, 0, 0); 
                     }
                     else
                     {
-                        col = GenerateColorGreyPalette(rVal);
+                        col = GenerateColorPalette(rVal);
+                        //processcol = GenerateColorGreyPalette(rVal);
                     }
-                   
                     
                     bmp.SetPixel(x, y, col);
-                   
-                    
-
-                    // Box 내 영역의 최대 최소 온도값 체크
-                    if (roiBox != null && roiBox.GetIsVisible())
-                    {
-                        roiBox.CheckXYinBox(x, y, data[a]);
-                    }
+                    //bmp2.SetPixel(x, y, processcol); 
+              
                 }
 
+                //Graphics gr = Graphics.FromImage(bmp);
+                ////Graphics gr2 = Graphics.FromImage(bmp2);
 
-                Graphics gr = Graphics.FromImage(bmp);
-                frameQueue.Enqueue(bmp);
-                int maxX = 0;
-                int maxY = 0;
-                int minX = 0;
-                int minY = 0;
 
-                // max spot get x, y;
-                getXY(maxSpot.GetPointIndex(), mCurWidth, out maxX, out maxY);
-                getXY(minSpot.GetPointIndex(), mCurWidth, out minX, out minY);
+                //int maxX = 0;
+                //int maxY = 0;
+                //int minX = 0;
+                //int minY = 0;
 
-                maxSpot.SetXY(gr, maxX, maxY);
-                minSpot.SetXY(gr, minY, minY);
+                //// max spot get x, y;
+                //getXY(maxSpot.GetPointIndex(), mCurWidth, out maxX, out maxY);
+                //getXY(minSpot.GetPointIndex(), mCurWidth, out minX, out minY);
 
-                // ROI Box
-                if (roiBox != null && roiBox.GetIsVisible())
-                {
-                    roiBox.SetXYWH(gr);
-                    roiBox.SetMax(gr);
-                    roiBox.SetMin(gr);
+                //maxSpot.SetXY(gr, maxX, maxY);
+                //minSpot.SetXY(gr, minY, minY);
 
-                    ushort usMin = 0;
-                    ushort usMax = 0;
+                // frameQueue에 제대로 삽입되는지 확인
 
-                    roiBox.GetMinMax(out usMin, out usMax);
+                EnqueueFrame(bmp);
+                //frameQueue.Enqueue(bmp);
+                //Console.WriteLine("Frame enqueued successfully");
 
-                    minBox = (((float)(usMin) * mConvertOffsetVal) - 273.15f);
-                    maxBox = (((float)(usMax) * mConvertOffsetVal) - 273.15f);
-
-                }
-
-               // imageprocessing
-               // frameQueue.Enqueue(bmp); 
-                //Grayscale(bmp); 
                 // Bitmap is ready - update image control
-                //hBitmap = bmp.GetHbitmap();
-                //BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+                hBitmap = bmp.GetHbitmap();
+                BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
+
+                //hBitmaprocess = bmp2.GetHbitmap();
+                //BitmapSource bmpSrc2 = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmaprocess, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
 
                 //if (bmpSrc.CanFreeze)
                 //    bmpSrc.Freeze();
 
-                //this.backgroundImageBrush.ImageSource = bmpSrc;
+                //if (bmpSrc2.CanFreeze)
+                //    bmpSrc2.Freeze();
 
-                //DeleteObject(hBitmap);
+
+                this.backgroundImageBrush.ImageSource = bmpSrc;
+               // this.backgroundProcessImageBrush.ImageSource = bmpSrc2;
+
+                DeleteObject(hBitmap);
+                //DeleteObject(hBitmaprocess);
 
             }
             catch (Exception e)
@@ -860,13 +837,17 @@ namespace SpinnakerTest
 
             return;
         }
-
+        private void EnqueueFrame(Bitmap bmp)
+        {
+            lock (bitmapLock)
+            {
+                frameQueue.Enqueue(new Bitmap(bmp));
+                Console.WriteLine("Frame enqueued successfully");
+            }
+        }
 
         [System.Runtime.InteropServices.DllImport("gdi32.dll")]
         static extern bool DeleteObject(IntPtr hObject);
-
-
-        
         void threadProc(IManagedCamera cam)
         {
             while (true)
@@ -980,16 +961,6 @@ namespace SpinnakerTest
             x = sourceIndex % sourceWidth;
         }
 
-        private void SetROIBox_Click(object sender, RoutedEventArgs e)
-        {
-            // 측정 영역 박스 좌표, 크기 설정
-            roiBox = new MeasureBoxValue(System.Drawing.Color.Yellow, 0, 0, 100, 100);
-            roiBox.SetIsVisible(true);
-
-            SetROIBox.IsEnabled = false; 
-            ROIBox_Change.IsEnabled = true;
-            ROIChange.IsEnabled = true; 
-        }
 
         delegate void DelegateCompositionTarget_Rendering(double minval, double maxval, double measurePoint, double measurePoint2);
         void CompositionTarget_Rendering(double minval, double maxval, double roiminval, double roimaxval)
@@ -1004,10 +975,7 @@ namespace SpinnakerTest
             MinTemp.Content = string.Format("{0:F1}", minval);
             MaxTemp.Content = string.Format("{0:F1}", maxval);
 
-            // ROI 영역 온도 값 표시 
-            ROIMinTemp.Content = string.Format("{0:F1}", roiminval);
-            ROIMaxTemp.Content = string.Format("{0:F1}", roimaxval);
-
+       
         }
         #endregion
 
@@ -1172,7 +1140,7 @@ namespace SpinnakerTest
             try
             {
                 // 변경 가능한 Palette List를 ComboBox에 추가 
-                //Palette_ComboBox.Items.Add("Rainbow");
+                
                 Palette_ComboBox.Items.Add("Plasma");
                 Palette_ComboBox.Items.Add("Iron");
                 Palette_ComboBox.Items.Add("Arctic");
@@ -1187,8 +1155,8 @@ namespace SpinnakerTest
                 Palette_ComboBox.Items.Add("Summer");
 
                 // 기본 설정 팔레트는 Rainbow
-                Palette_ComboBox.SelectedIndex = 0;
-                Current_Palette = "Plasma";
+                Palette_ComboBox.SelectedIndex =1;
+                Current_Palette = "Iron";
                 GetRGBfrom16bit(MDSPALETTE.Plasma_palette);
             }
             catch (Exception ex)
@@ -1260,7 +1228,7 @@ namespace SpinnakerTest
                     GetRGBfrom16bit(MDSPALETTE.Summer_palette);
                     break;
                 default:
-                    Current_Palette = "Rainbow";
+                    Current_Palette = "Iron";
                     break;
 
             }
@@ -1290,14 +1258,14 @@ namespace SpinnakerTest
 
         #region STEP2 - 03. APPLY COLORMAP
 
-        private ImageProcessing imagetogray = new ImageProcessing(); 
+       
         private Color GenerateColorPalette(int rVal)
         {
             try
             {
                 Color col = new Color();
 
-                if (Current_Palette != "Rainbow")
+                if (Current_Palette != "Iron")
                 {
                     if (_usecheckbox == false) // 팔레트 구성이 자동이 아닌 경우 
                     {
@@ -1384,103 +1352,6 @@ namespace SpinnakerTest
        
         #endregion
 
-        #region STEP3 - 01. SCALE SETTING UI
-
-        // Scale 구성 자동 설정 
-        private void CheckBox_Checked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                _usecheckbox = true;
-                ScaleSetting.IsEnabled = false;
-
-                HighTemp.Clear();
-                LowTemp.Clear();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex); 
-            }
-            
-        }
-
-        // Scale 구성 수동 설정 
-        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                _usecheckbox = false;
-                ScaleSetting.IsEnabled = true;
-
-                HighTemp.Text = _maxtext.ToString();
-                LowTemp.Text = _mintext.ToString();
-
-                _scalemaxtemp = _maxtext;
-                _scalemintemp = _mintext;
-
-                _scalemaxraw = TempChange(_scalemaxtemp);
-                _scaleminraw = TempChange(_scalemintemp);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-        }
-
-        // Scale 구성 시 최고 온도 값 설정 
-        private void SetHighTemp_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                //HighTemp
-                if (HighTemp.Text != null)
-                {
-                    if (int.Parse(HighTemp.Text) <= _scalemintemp)
-                    {
-                        MessageBox.Show("최저 온도보다 큰 값을 입력해주세요! ");
-                        HighTemp.Clear();
-                        return;
-                    }
-                    _scalemaxtemp = int.Parse(HighTemp.Text);
-
-                }
-                _scalemaxraw = TempChange(_scalemaxtemp);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-        }
-
-        // Scale 구성 시 최저 온도 값 설정 
-        private void SetLowTemp_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // LowTemp
-                if (LowTemp.Text != null)
-                {
-                    if (int.Parse(LowTemp.Text) >= _scalemaxtemp)
-                    {
-                        MessageBox.Show("최고 온도보다 작은 값을 입력해주세요! ");
-                        LowTemp.Clear();
-                        return;
-                    }
-                    _scalemintemp = int.Parse(LowTemp.Text);
-                }
-                _scaleminraw = TempChange(_scalemintemp);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-
-        }
-
-        #endregion
 
         #region STEP3 - 02. TEMPERATURE CONVERTER
         // 섭씨 온도를 uint 값으로 변환하여 반환 
@@ -1502,228 +1373,58 @@ namespace SpinnakerTest
 
         #endregion
 
-        #region STEP4 - 01. ROI CHANGE
-        
-        
-        private void ROIBox_Change_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                // 입력한 값을 Int형으로 변환하여 저장 
-                int _roix = int.Parse(ROI_X.Text);
-                int _roiy = int.Parse(ROI_Y.Text);
-                int _roiwidth = int.Parse(ROI_Width.Text);
-                int _roiheight = int.Parse(ROI_Height.Text);
-
-                // 입력한 값이 올바르지 않은 경우
-                if (0 > _roix || _roix >= mCurWidth || 0 > _roiy || _roiy >= mCurHeight || 0 > _roiwidth || (_roix + _roiwidth) > mCurWidth || 0 > _roiheight || (_roiy + _roiheight) > mCurHeight)
-                {
-                    MessageBox.Show(String.Format("입력한 값이 올바르지 않습니다. \n X : 0 ~ {0}, Y : 0 ~ {1}", mCurWidth, mCurHeight));
-                    return; 
-                }
-
-                // ROI 영역의 위치 및 크기 변경 
-                roiBox.MeasureBoxValueChange(_roix, _roiy, _roiwidth, _roiheight ); 
-                
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show(String.Format("입력한 값이 올바르지 않습니다. \n X : 0 ~ {0}, Y : 0 ~ {1}", mCurWidth, mCurHeight));
-                Console.WriteLine(ex); 
-            }
-        }
 
 
-        #endregion
-
-        #region STEP4 - 02. JPEG SAVE
-        
-        // 이미지 저장 
-        private void SaveJpegButton_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                DateTime now = DateTime.Now;
-
-                // 저장 경로 
-                string path = string.Format(@"{0}\{1}년{2}월{3}일\", savepath, now.Year, now.Month, now.Day);
-
-                DirectoryInfo di = new DirectoryInfo(path); 
-                if(di.Exists == false)
-                {
-                    // 저장 경로가 존재하지 않는 경우 해당 경로를 생성  
-                    di.Create(); 
-                }
-                
-                bmp.Save(string.Format(@"{0}{1}_{2}_{3}.jpeg", path, now.Hour, now.Minute, now.Second));
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex); 
-            }
-        }
-
-        //private void SaveAVIButton_Click(object sender, RoutedEventArgs e)
-        //{
 
 
-        //}
 
-
-        #endregion
-
-        #region STEP5 - 01. NUC SETTING
-
-        private void SetCamProp(bool val)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-                IEnum abc = nodeMap.GetNode<IEnum>("NUCMode");
-
-                if (abc != null)
-                {
-                    EnumValue ev = abc.Value;
-                    ev.Int = (val) ? 1 : 0;
-                }
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        private void NUCACTION_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-                Command commandNode = nodeMap.GetNode<Command>("NUCAction");
-
-                commandNode.Execute();
-            }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex); 
-            }
-            
-        }
-        
-        private void CheckAuto_Checked(object sender, RoutedEventArgs e)
-        {
-
-            if (bAutoShutter == true)
-                return;
-
-            bAutoShutter = true;
-            SetCamProp(bAutoShutter);
-        }
-
-        private void CheckAuto_Unchecked(object sender, RoutedEventArgs e)
-        {
-            if (bAutoShutter == false)
-                return;
-
-            bAutoShutter = false;
-            SetCamProp(bAutoShutter);
-        }
-        #endregion
-
-        #region STEP5 - 02. FOCUS SETTING
-        private void BtnAuto_Click(object sender, RoutedEventArgs e)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-                Command commandNode = nodeMap.GetNode<Command>("AutoFocus");
-
-
-                commandNode.Execute();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        private void BtnNear_Click(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-
-                //"FocusSpeed" 값이 0 보다 커야 FocusDirection이 작동 
-                IInteger focusspeed = nodeMap.GetNode<IInteger>("FocusSpeed");
-                if (focusspeed != null)
-                {
-                    focusspeed.Value = 10;
-                }
-
-                IEnum focus = nodeMap.GetNode<IEnum>("FocusDirection");
-
-                if (focus != null)
-                {
-                    focus.Value = 2;
-
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-
-        private void BtnFar_Click(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-
-                IInteger focusspeed = nodeMap.GetNode<IInteger>("FocusSpeed");
-                if (focusspeed != null || focusspeed.Value == 10)
-                {
-                    focusspeed.Value = 10;
-                }
-
-
-                IEnum focus = nodeMap.GetNode<IEnum>("FocusDirection");
-                if (focus != null)
-                {
-                    focus.Value = 1;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-
-        private void MouseButtonUp(object sender, MouseButtonEventArgs e)
-        {
-            try
-            {
-                INodeMap nodeMap = connectcam.GetNodeMap();
-
-                IEnum focus = nodeMap.GetNode<IEnum>("FocusDirection");
-                if (focus != null)
-                {
-                    focus.Value = 0;
-                }
-
-                //commandNode.Execute();
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-        }
-        #endregion
 
         #region STEP6 -01. IMAGE PROCESS
 
         #endregion
+        //private void StartImageProcessingThread()
+        //{
+        //    Task.Run(() =>
+        //    {
+        //        while (isProcessing)
+        //        {
+        //            try
+        //            {
+
+        //                if (frameQueue.Count !=0 && frameQueue.TryDequeue(out var frame))
+        //                {
+        //                    Bitmap frameCopy;
+
+        //                    try
+        //                    {
+        //                        frameCopy = new Bitmap(frame);
+        //                    }
+        //                    catch (InvalidOperationException ex)
+        //                    {
+        //                        // 카메라 연결 문제 또는 프레임 상태 문제 처리
+        //                        // 카메라 NUC 조정 or 측정 온도 변경 등 잠시 프레임이 전달되지 않는 경우를 위한 예외처리 
+        //                        Console.WriteLine($"Invalid operation while creating bitmap: {ex.Message}");
+        //                        continue;
+        //                    }
+        //                    catch (Exception ex)
+        //                    {
+        //                        // 기타 예외 처리
+        //                        Console.WriteLine($"Error creating bitmap: {ex.Message}");
+        //                        continue;
+        //                    }
+
+        //                    var processedFrame = ProcessFrame(frameCopy);
+        //                    Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
+        //                }
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                Console.WriteLine($"An error occurred in the processing thread: {ex.Message}");
+        //            }
+        //        }
+        //    });
+        //}
+        private object bitmapLock = new object();
         private void StartImageProcessingThread()
         {
             Task.Run(() =>
@@ -1732,30 +1433,52 @@ namespace SpinnakerTest
                 {
                     try
                     {
-                        if (frameQueue.TryDequeue(out var frame))
-                        {
-                            Bitmap frameCopy;
+                        Bitmap frame = null;
 
+                        lock (frameQueue)
+                        {
+                            if (frameQueue.Count != 0 && frameQueue.TryDequeue(out frame))
+                            {
+                                Console.WriteLine("Frame dequeued successfully");
+                            }
+                        }
+
+                        if (frame != null)
+                        {
+                            Bitmap frameCopy = null;
                             try
                             {
-                                frameCopy = new Bitmap(frame);
+                                // Bitmap 객체를 잠금
+                                lock (bitmapLock)
+                                {
+                                    frameCopy = new Bitmap(frame);
+                                }
                             }
                             catch (InvalidOperationException ex)
                             {
-                                // 카메라 연결 문제 또는 프레임 상태 문제 처리
-                                // 카메라 NUC 조정 or 측정 온도 변경 등 잠시 프레임이 전달되지 않는 경우를 위한 예외처리 
                                 Console.WriteLine($"Invalid operation while creating bitmap: {ex.Message}");
                                 continue;
                             }
                             catch (Exception ex)
                             {
-                                // 기타 예외 처리
                                 Console.WriteLine($"Error creating bitmap: {ex.Message}");
                                 continue;
                             }
 
-                            var processedFrame = ProcessFrame(frameCopy);
-                            Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
+                            try
+                            {
+                                var processedFrame = ProcessFrame(frameCopy);
+                                Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
+                            }
+                            catch (Exception ex)
+                            {
+                                Console.WriteLine($"Error processing frame: {ex.Message}");
+                            }
+                            finally
+                            {
+                                frameCopy?.Dispose();
+                                frame?.Dispose();
+                            }
                         }
                     }
                     catch (Exception ex)
@@ -1783,6 +1506,9 @@ namespace SpinnakerTest
                     case "Grayscale": // 그레이스케일
                         frameCopy = processing.Grayscale(frameCopy);
                         break;
+                    case "EdgeDetection": // 그레이스케일
+                        frameCopy = processing.Edgedetection(frameCopy);
+                        break;
                 }
             }
             catch (Exception ex)
@@ -1804,7 +1530,8 @@ namespace SpinnakerTest
                 if (bmpSrc.CanFreeze)
                     bmpSrc.Freeze();
 
-                this.backgroundImageBrush.ImageSource = bmpSrc;
+                //this.backgroundImageBrush.ImageSource = bmpSrc;
+               this.backgroundProcessImageBrush.ImageSource = bmpSrc;
 
                 DeleteObject(hBitmap);
             }
@@ -1819,10 +1546,6 @@ namespace SpinnakerTest
         {
             try
             {
-                //영상처리 콤보박스 구성
-                processingcombo.Items.Add("None");
-                processingcombo.Items.Add("Thresholding");
-                processingcombo.Items.Add("Grayscale");
 
                 //threshold 값 지정 
                 processingval.Maximum = 255;
@@ -1830,7 +1553,6 @@ namespace SpinnakerTest
                 processingval.Value = 100;
 
                 // 영상처리를 선택하지 않은 상태로 초기화 - threshold 값 조정 UI 숨기기
-                processingcombo.SelectedIndex = 0;
                 selectedItem = "None"; 
                 ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
             }
@@ -1841,41 +1563,16 @@ namespace SpinnakerTest
          
         }
         
-        private void processingcombo_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-          
-            selectedItem = processingcombo.SelectedItem.ToString();
-
-            if (selectedItem == null) return; 
-            switch (selectedItem)
-            {
-                // threshold 조정 UI가 전시되지 않는 경우
-                case "None": // none
-                case "Grayscale": // grayscale
-                    Palette_ComboBox.IsEnabled = true;
-                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                    break;
-                
-                // threshold 조정 UI가 전시되는 경우 
-                case "Thresholding": // 이진화
-                    Palette_ComboBox.IsEnabled = false;
-                    ProcessGrid.Visibility = System.Windows.Visibility.Visible;
-                    break;
-
-                default:
-                    // Optional: handle cases for other indices if needed
-                    break;
-            }
-
-
-        }
-
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
             processing.thresholdvalue = sliderValue; 
         }
 
-
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            RadioButton btn = (RadioButton)sender;
+            selectedItem = btn.Name;
+        }
     }
 }
