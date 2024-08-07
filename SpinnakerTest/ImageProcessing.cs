@@ -1,11 +1,7 @@
 ﻿using OpenCvSharp;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SpinnakerTest
 {
@@ -58,12 +54,102 @@ namespace SpinnakerTest
             Mat dst = new Mat();
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
             Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
-            Cv2.Canny(src, dst, 100, 500,3, false); 
+            Cv2.Canny(dst, dst, 100, 500,3, false); 
             Bitmap processBitmap = MatToBitmap(dst);
             return processBitmap;
         }
 
+        /// <summary>
+        /// 침식
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Erosion(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
 
+            // 커널 정의
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // 커널 사이즈 변경 
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+            Cv2.Erode(dst, dst, kernel);
+
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
+
+      
+        /// <summary>
+        /// 팽창
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Dilatation(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
+
+            // 커널 정의
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // 커널 사이즈 변경 
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            Cv2.Dilate(dst, dst, kernel);
+
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
+
+        /// <summary>
+        /// 침식 연산 후 팽창 
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Opening(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
+
+            // 커널 정의
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // 커널 사이즈 변경 
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+            Cv2.MorphologyEx(dst, dst, MorphTypes.Open, kernel);
+
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
+
+        /// <summary>
+        /// 침식 연산 후 팽창 
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Gradient(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
+
+            // 커널 정의
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // 커널 사이즈 변경 
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+
+            Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            //Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+            Cv2.MorphologyEx(dst, dst, MorphTypes.Gradient, kernel);
+
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
         #endregion
 
         #region Converter

@@ -733,9 +733,7 @@ namespace SpinnakerTest
                 }
 
                 System.Drawing.Color col;
-                System.Drawing.Color processcol;
                 IntPtr hBitmap = IntPtr.Zero;
-                IntPtr hBitmaprocess = IntPtr.Zero;
 
                 //x 는 image의 width
                 //y 는 image의 height
@@ -772,7 +770,6 @@ namespace SpinnakerTest
                     if (selectedItem == "None") //영상처리가 none인 경우 
                     {
                         col = GenerateColorPalette(rVal);
-                        //processcol = Color.FromArgb(0, 0, 0); 
                     }
                     else
                     {
@@ -781,52 +778,15 @@ namespace SpinnakerTest
                     }
                     
                     bmp.SetPixel(x, y, col);
-                    //bmp2.SetPixel(x, y, processcol); 
-              
                 }
-
-                //Graphics gr = Graphics.FromImage(bmp);
-                ////Graphics gr2 = Graphics.FromImage(bmp2);
-
-
-                //int maxX = 0;
-                //int maxY = 0;
-                //int minX = 0;
-                //int minY = 0;
-
-                //// max spot get x, y;
-                //getXY(maxSpot.GetPointIndex(), mCurWidth, out maxX, out maxY);
-                //getXY(minSpot.GetPointIndex(), mCurWidth, out minX, out minY);
-
-                //maxSpot.SetXY(gr, maxX, maxY);
-                //minSpot.SetXY(gr, minY, minY);
-
-                // frameQueue에 제대로 삽입되는지 확인
-
                 EnqueueFrame(bmp);
-                //frameQueue.Enqueue(bmp);
-                //Console.WriteLine("Frame enqueued successfully");
-
+          
                 // Bitmap is ready - update image control
                 hBitmap = bmp.GetHbitmap();
                 BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
 
-                //hBitmaprocess = bmp2.GetHbitmap();
-                //BitmapSource bmpSrc2 = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmaprocess, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
-
-                //if (bmpSrc.CanFreeze)
-                //    bmpSrc.Freeze();
-
-                //if (bmpSrc2.CanFreeze)
-                //    bmpSrc2.Freeze();
-
-
                 this.backgroundImageBrush.ImageSource = bmpSrc;
-               // this.backgroundProcessImageBrush.ImageSource = bmpSrc2;
-
                 DeleteObject(hBitmap);
-                //DeleteObject(hBitmaprocess);
-
             }
             catch (Exception e)
             {
@@ -1502,13 +1462,37 @@ namespace SpinnakerTest
                     case "None": break;
                     case "Thresholding": // 이진화
                         frameCopy = processing.Thresholding(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Visible;
                         break;
                     case "Grayscale": // 그레이스케일
                         frameCopy = processing.Grayscale(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
-                    case "EdgeDetection": // 그레이스케일
+                    case "EdgeDetection": // 엣지 검출 
                         frameCopy = processing.Edgedetection(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
+                    case "Erosion": // 침식
+                        frameCopy = processing.Erosion(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        break;
+                    case "Dilatation": // 팽창
+                        frameCopy = processing.Dilatation(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        break;
+                    case "Opening": // 침식 연산 후 팽창 
+                        frameCopy = processing.Opening(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        break;
+                    case "Gradient": // 팽창 연산 후 침식 
+                        frameCopy = processing.Gradient(frameCopy);
+                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        break;
+                    case "HaarCascade": // 객체 검출 
+                        //frameCopy = processing.Gradient(frameCopy);
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        break;
+
                 }
             }
             catch (Exception ex)
@@ -1573,6 +1557,8 @@ namespace SpinnakerTest
         {
             RadioButton btn = (RadioButton)sender;
             selectedItem = btn.Name;
+
+            
         }
     }
 }

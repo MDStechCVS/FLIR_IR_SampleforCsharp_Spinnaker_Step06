@@ -116,13 +116,13 @@
         </Grid>-->
 
 
-        <Grid  Grid.Column="0" Grid.Row="4">
-            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="1">
+        <Grid  Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">
+            <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="3" >
                 <StackPanel Orientation="Horizontal" Margin="10, 5, 5, 5">
                     <RadioButton Width="45" Height="40" Name="None" ToolTip="None" Focusable="False" IsChecked="True"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="None">
                     </RadioButton>
-                    <RadioButton Width="60" Height="40" Name="Thresholding" ToolTip="Thresholding" Focusable="False" 
+                    <RadioButton Width="80" Height="40" Name="Thresholding" ToolTip="Thresholding" Focusable="False" 
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Thresholding">
                     </RadioButton>
                     <RadioButton Width="60" Height="40" Name="Grayscale" ToolTip="Grayscale" Focusable="False"
@@ -131,9 +131,9 @@
                     <RadioButton Width="60" Height="40" Name="EdgeDetection" ToolTip="EdgeDetection" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Edge&#10;Detection">
                     </RadioButton>
-                    <RadioButton Width="60" Height="40" Name="Rotate" ToolTip="Rotate" Focusable="False"
+                    <!--<RadioButton Width="60" Height="40" Name="Rotate" ToolTip="Rotate" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Rotate">
-                    </RadioButton>
+                    </RadioButton>-->
                     <RadioButton Width="60" Height="40" Name="Erosion" ToolTip="Erosion" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Erosion">
                     </RadioButton>
