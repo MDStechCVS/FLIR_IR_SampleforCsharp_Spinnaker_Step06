@@ -10,6 +10,7 @@ namespace SpinnakerTest
         #region Private Variable 
 
         public int thresholdvalue = 80;
+        public int sizevalue = 3;
 
         #endregion
 
@@ -70,12 +71,12 @@ namespace SpinnakerTest
             Mat dst = new Mat();
 
             // 커널 정의
-            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+           // Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
             // 커널 사이즈 변경 
-            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(sizevalue, sizevalue));
 
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
-            Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+           // Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
             Cv2.Erode(dst, dst, kernel);
 
             Bitmap processBitmap = MatToBitmap(dst);
@@ -94,11 +95,12 @@ namespace SpinnakerTest
             Mat dst = new Mat();
 
             // 커널 정의
-            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
             // 커널 사이즈 변경 
-            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(sizevalue, sizevalue));
 
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            //Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
             Cv2.Dilate(dst, dst, kernel);
 
             Bitmap processBitmap = MatToBitmap(dst);
@@ -116,12 +118,12 @@ namespace SpinnakerTest
             Mat dst = new Mat();
 
             // 커널 정의
-            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
             // 커널 사이즈 변경 
-            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(sizevalue, sizevalue));
 
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
-            Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+           // Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
             Cv2.MorphologyEx(dst, dst, MorphTypes.Open, kernel);
 
             Bitmap processBitmap = MatToBitmap(dst);
@@ -139,9 +141,9 @@ namespace SpinnakerTest
             Mat dst = new Mat();
 
             // 커널 정의
-            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
             // 커널 사이즈 변경 
-            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(thresholdvalue, thresholdvalue));
+            Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(sizevalue, sizevalue));
 
             Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
             //Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
@@ -150,6 +152,36 @@ namespace SpinnakerTest
             Bitmap processBitmap = MatToBitmap(dst);
             return processBitmap;
         }
+
+        /// <summary>
+        /// 침식 연산 후 팽창 
+        /// </summary>
+        /// <param name="_bitmap"></param>
+        /// <returns></returns>
+        public Bitmap Blur(Bitmap _bitmap)
+        {
+            Mat src = BitmapToMat(_bitmap);
+            Mat dst = new Mat();
+
+            // 커널 사이즈는 반드시 홀수여야 함
+            if (sizevalue % 2 == 0)
+            {
+                sizevalue += 1;
+            }
+
+            // 커널 정의
+            // Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(5, 5));
+            // 커널 사이즈 변경 
+            //Mat kernel = Cv2.GetStructuringElement(MorphShapes.Rect, new OpenCvSharp.Size(sizevalue, sizevalue));
+
+            //Cv2.CvtColor(src, dst, ColorConversionCodes.RGBA2GRAY);
+            //Cv2.Threshold(dst, dst, thresholdvalue, 255, ThresholdTypes.Binary);
+            Cv2.GaussianBlur(src, dst, new OpenCvSharp.Size(sizevalue, sizevalue), 0);
+
+            Bitmap processBitmap = MatToBitmap(dst);
+            return processBitmap;
+        }
+
         #endregion
 
         #region Converter

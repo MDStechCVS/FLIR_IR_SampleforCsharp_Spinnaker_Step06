@@ -63,7 +63,6 @@ namespace SpinnakerTest
         private double maxBox = 0;
 
         private Bitmap bmp = null;
-        private Bitmap bmp2 = null;
         private int step = 64; // 총 4개의 간격으로 나눔
 
         private IManagedCamera connectcam = null; // 연결 된 카메라 객체 
@@ -152,7 +151,7 @@ namespace SpinnakerTest
             {
                 mTempValue = usTempValue;
             }
-          
+
         }
 
         // 측정 영역 Box
@@ -200,7 +199,7 @@ namespace SpinnakerTest
                     mWidth = nWidth;
                     mHeight = nHeight;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Console.WriteLine(ex);
                 }
@@ -311,9 +310,9 @@ namespace SpinnakerTest
             Palette_ComboBox_Initialize();
             processsldInitialize();
 
-            
 
-            StartImageProcessingThread(); 
+
+            StartImageProcessingThread();
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -426,7 +425,7 @@ namespace SpinnakerTest
                 isRunning = true;
 
                 Console.Write("\tDevice {0} ", 0);
-               
+
 
                 Thread.Sleep(1000);
 
@@ -460,7 +459,7 @@ namespace SpinnakerTest
                     mCurHeight = 256;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
-                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
+                   
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -503,7 +502,7 @@ namespace SpinnakerTest
                 }
                 else if (modelname.Contains("PT1000")) // FLIR Axx
                 {
-                    if(manufacturerInfo != null && manufacturerInfo.Contains("A320"))
+                    if (manufacturerInfo != null && manufacturerInfo.Contains("A320"))
                     {
                         stIntCamFrameArray = int320240;
                         mCurWidth = 320;
@@ -517,7 +516,6 @@ namespace SpinnakerTest
                     }
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
-                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -541,7 +539,7 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "PT1000";
-                   
+
 
                 }
                 else if (modelname.Contains("A50")) // A50, A500
@@ -551,7 +549,6 @@ namespace SpinnakerTest
                     mCurHeight = 348;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
-                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // pixelformat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -584,7 +581,6 @@ namespace SpinnakerTest
                     mCurHeight = 480;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
-                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
 
                     // PixelFormat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
@@ -608,7 +604,7 @@ namespace SpinnakerTest
                     }
 
                     CamDevice = "A70";
-                   
+
                 }
                 else if (modelname.Contains("A400")) // A400
                 {
@@ -617,8 +613,7 @@ namespace SpinnakerTest
                     mCurHeight = 240;
 
                     bmp = new Bitmap(mCurWidth, mCurHeight);
-                    bmp2 = new Bitmap(mCurWidth, mCurHeight);
-
+           
                     // PixelFormat 설정 
                     IEnum iPixelFormat = nodeMap.GetNode<IEnum>("PixelFormat");
                     if (iPixelFormat != null && iPixelFormat.IsWritable)
@@ -744,7 +739,7 @@ namespace SpinnakerTest
                 {
                     roiBox.ResetMinMax();
                 }
-                
+
                 for (int a = 0; a < data.Length; a++)
                 {
                     getXY(a, mCurWidth, out x, out y);
@@ -762,9 +757,9 @@ namespace SpinnakerTest
 
                     // 인덱스가 음수로 나오는 경우 예외처리 
                     // Scale 설정이 수동인 경우 -> 설정한 min 값보다 측정된 온도 값이 더 낮은 경우 
-                    if (rVal < 0) 
+                    if (rVal < 0)
                     {
-                        rVal = 0; 
+                        rVal = 0;
                     }
 
                     if (selectedItem == "None") //영상처리가 none인 경우 
@@ -776,11 +771,11 @@ namespace SpinnakerTest
                         col = GenerateColorPalette(rVal);
                         //processcol = GenerateColorGreyPalette(rVal);
                     }
-                    
+
                     bmp.SetPixel(x, y, col);
                 }
                 EnqueueFrame(bmp);
-          
+
                 // Bitmap is ready - update image control
                 hBitmap = bmp.GetHbitmap();
                 BitmapSource bmpSrc = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hBitmap, IntPtr.Zero, Int32Rect.Empty, System.Windows.Media.Imaging.BitmapSizeOptions.FromEmptyOptions());
@@ -802,7 +797,7 @@ namespace SpinnakerTest
             lock (bitmapLock)
             {
                 frameQueue.Enqueue(new Bitmap(bmp));
-                Console.WriteLine("Frame enqueued successfully");
+                
             }
         }
 
@@ -873,7 +868,7 @@ namespace SpinnakerTest
                                     minSpot.SetTempVal(sample);
 
                                     _mintext = (int)minValue;
-                                    
+
                                 }
                                 else if (max16 < sample)
                                 {
@@ -883,7 +878,7 @@ namespace SpinnakerTest
                                     maxSpot.SetTempVal(sample);
 
                                     _maxtext = (int)maxValue;
-                                   
+
                                 }
 
                                 imgArray[a / 2] = sample;
@@ -935,12 +930,12 @@ namespace SpinnakerTest
             MinTemp.Content = string.Format("{0:F1}", minval);
             MaxTemp.Content = string.Format("{0:F1}", maxval);
 
-       
+
         }
         #endregion
 
 
-       
+
 
         #region STEP1 - 04. CAMERA TEMPERATURE RANGE CONFIGURATION 
         private void TempRangeConf(INodeMap nodeMap)
@@ -1100,7 +1095,7 @@ namespace SpinnakerTest
             try
             {
                 // 변경 가능한 Palette List를 ComboBox에 추가 
-                
+
                 Palette_ComboBox.Items.Add("Plasma");
                 Palette_ComboBox.Items.Add("Iron");
                 Palette_ComboBox.Items.Add("Arctic");
@@ -1115,7 +1110,7 @@ namespace SpinnakerTest
                 Palette_ComboBox.Items.Add("Summer");
 
                 // 기본 설정 팔레트는 Rainbow
-                Palette_ComboBox.SelectedIndex =1;
+                Palette_ComboBox.SelectedIndex = 1;
                 Current_Palette = "Iron";
                 GetRGBfrom16bit(MDSPALETTE.Plasma_palette);
             }
@@ -1218,7 +1213,7 @@ namespace SpinnakerTest
 
         #region STEP2 - 03. APPLY COLORMAP
 
-       
+
         private Color GenerateColorPalette(int rVal)
         {
             try
@@ -1273,18 +1268,18 @@ namespace SpinnakerTest
 
                 return col;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                Console.WriteLine("rVal : "+ rVal);
+                Console.WriteLine("rVal : " + rVal);
 
                 Color col = new Color();
-                col = Color.FromArgb(255, 255, 255); 
+                col = Color.FromArgb(255, 255, 255);
 
-                return col; 
-                 
+                return col;
+
             }
-            
+
         }
 
         private Color GenerateColorGreyPalette(int rVal)
@@ -1292,8 +1287,8 @@ namespace SpinnakerTest
             try
             {
                 Color col = new Color();
-                col = Color.FromArgb(rVal, rVal, rVal); 
-        
+                col = Color.FromArgb(rVal, rVal, rVal);
+
                 return col;
             }
             catch (Exception ex)
@@ -1309,7 +1304,7 @@ namespace SpinnakerTest
             }
 
         }
-       
+
         #endregion
 
 
@@ -1326,7 +1321,7 @@ namespace SpinnakerTest
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                return 0; 
+                return 0;
             }
         }
 
@@ -1342,48 +1337,7 @@ namespace SpinnakerTest
         #region STEP6 -01. IMAGE PROCESS
 
         #endregion
-        //private void StartImageProcessingThread()
-        //{
-        //    Task.Run(() =>
-        //    {
-        //        while (isProcessing)
-        //        {
-        //            try
-        //            {
-
-        //                if (frameQueue.Count !=0 && frameQueue.TryDequeue(out var frame))
-        //                {
-        //                    Bitmap frameCopy;
-
-        //                    try
-        //                    {
-        //                        frameCopy = new Bitmap(frame);
-        //                    }
-        //                    catch (InvalidOperationException ex)
-        //                    {
-        //                        // 카메라 연결 문제 또는 프레임 상태 문제 처리
-        //                        // 카메라 NUC 조정 or 측정 온도 변경 등 잠시 프레임이 전달되지 않는 경우를 위한 예외처리 
-        //                        Console.WriteLine($"Invalid operation while creating bitmap: {ex.Message}");
-        //                        continue;
-        //                    }
-        //                    catch (Exception ex)
-        //                    {
-        //                        // 기타 예외 처리
-        //                        Console.WriteLine($"Error creating bitmap: {ex.Message}");
-        //                        continue;
-        //                    }
-
-        //                    var processedFrame = ProcessFrame(frameCopy);
-        //                    Ther_Image.Dispatcher.Invoke(() => DisplayFrame(processedFrame));
-        //                }
-        //            }
-        //            catch (Exception ex)
-        //            {
-        //                Console.WriteLine($"An error occurred in the processing thread: {ex.Message}");
-        //            }
-        //        }
-        //    });
-        //}
+      
         private object bitmapLock = new object();
         private void StartImageProcessingThread()
         {
@@ -1399,7 +1353,7 @@ namespace SpinnakerTest
                         {
                             if (frameQueue.Count != 0 && frameQueue.TryDequeue(out frame))
                             {
-                                Console.WriteLine("Frame dequeued successfully");
+                                //Console.WriteLine("Frame dequeued successfully");
                             }
                         }
 
@@ -1462,35 +1416,37 @@ namespace SpinnakerTest
                     case "None": break;
                     case "Thresholding": // 이진화
                         frameCopy = processing.Thresholding(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Visible;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Visible;
                         break;
                     case "Grayscale": // 그레이스케일
                         frameCopy = processing.Grayscale(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "EdgeDetection": // 엣지 검출 
                         frameCopy = processing.Edgedetection(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Erosion": // 침식
                         frameCopy = processing.Erosion(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Dilatation": // 팽창
                         frameCopy = processing.Dilatation(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Opening": // 침식 연산 후 팽창 
                         frameCopy = processing.Opening(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Gradient": // 팽창 연산 후 침식 
                         frameCopy = processing.Gradient(frameCopy);
-                        ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "HaarCascade": // 객체 검출 
-                        //frameCopy = processing.Gradient(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                                        //frameCopy = processing.Gradient(frameCopy);
+                                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    case "Blur":
+                        frameCopy = processing.Blur(frameCopy);
                         break;
 
                 }
@@ -1515,7 +1471,7 @@ namespace SpinnakerTest
                     bmpSrc.Freeze();
 
                 //this.backgroundImageBrush.ImageSource = bmpSrc;
-               this.backgroundProcessImageBrush.ImageSource = bmpSrc;
+                this.backgroundProcessImageBrush.ImageSource = bmpSrc;
 
                 DeleteObject(hBitmap);
             }
@@ -1536,29 +1492,90 @@ namespace SpinnakerTest
                 processingval.Minimum = 0;
                 processingval.Value = 100;
 
+                Sizeval.Maximum = 10;
+                Sizeval.Minimum = 1;
+                Sizeval.Value = 3; 
+
                 // 영상처리를 선택하지 않은 상태로 초기화 - threshold 값 조정 UI 숨기기
-                selectedItem = "None"; 
+                selectedItem = "None";
                 ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                Console.WriteLine(ex); 
+                Console.WriteLine(ex);
             }
-         
+
         }
-        
+
         private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
-            processing.thresholdvalue = sliderValue; 
+            processing.thresholdvalue = sliderValue;
         }
 
         private void RadioButton_Checked(object sender, RoutedEventArgs e)
         {
             RadioButton btn = (RadioButton)sender;
             selectedItem = btn.Name;
+            thresholdslidershow(selectedItem); 
 
-            
+
         }
+
+        private void thresholdslidershow(string item)
+        {
+            // 영상 처리 코드 수행
+            switch (selectedItem)
+            {
+                case "None":
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case "Thresholding": // 이진화
+                    ProcessGrid.Visibility = System.Windows.Visibility.Visible;
+                    SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case "Grayscale": // 그레이스케일
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case "EdgeDetection": // 엣지 검출 
+                    ProcessGrid.Visibility = System.Windows.Visibility.Visible;
+                    SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    break;
+                case "Erosion": // 침식
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Gradient": // 팽창 연산 후 침식 
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Opening": // 침식 연산 후 팽창 
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Dilatation": // 팽창
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
+                    break;
+                case "Blur":
+                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
+                    break;
+
+                    //case "HaarCascade": // 객체 검출 
+                    //    //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                    //    break;
+
+            }
+        }
+
+        private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
+            processing.sizevalue = sliderValue;
+        }
+
     }
 }

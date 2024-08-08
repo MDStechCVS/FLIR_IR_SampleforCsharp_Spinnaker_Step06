@@ -36,7 +36,7 @@
                 </Canvas.Background>
             </Canvas>
         </Grid>
-        
+
         <Grid x:Name="ProcessImage" Grid.Column="1"  Grid.Row="1" Grid.RowSpan="3" Margin="30,10,30,50" Background="AliceBlue">
             <Canvas x:Name="Process_Image" HorizontalAlignment="Right" Width="530" >
                 <Canvas.Background >
@@ -46,15 +46,27 @@
                 </Canvas.Background>
             </Canvas>
         </Grid>
-        <Grid x:Name="ProcessGrid" Grid.Column="0" Grid.Row="1" Grid.RowSpan="3">
+        <Grid x:Name="ProcessGrid" Grid.Column="1" Grid.Row="1" Grid.RowSpan="3">
             <Label Content="Threshold" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,0,0,15"/>
             <Slider x:Name="processingval" ValueChanged="Slider_ValueChanged"  IsSnapToTickEnabled="True" VerticalAlignment="Bottom" Margin="50,0,0,20" Width="480"/>
-            
+
             <Label Content="0" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="70,0,0,0"/>
             <Label Content="255" HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="530,0,0,0"/>
-       
+
         </Grid>
-        
+        <Grid x:Name="SizeGrid" Grid.Column="1" Grid.Row="4" Grid.RowSpan="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="115*"/>
+                <ColumnDefinition Width="181*"/>
+            </Grid.ColumnDefinitions>
+            <Label Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0"/>
+            <Slider x:Name="Sizeval" ValueChanged="SizeSlider_ValueChanged"  IsSnapToTickEnabled="True" VerticalAlignment="Top" Margin="81,0,271,0" Width="240" Grid.ColumnSpan="2"/>
+
+            <Label Content="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,10,0,0"/>
+            <Label Content="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,10,0,0" Grid.Column="1"/>
+
+        </Grid>
+
         <Grid Grid.Column="0" Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition/>
@@ -69,7 +81,7 @@
 
             <Label   Content="Palette" Grid.Column="2" Height="30" Width="110"  Margin="-20,-30,0,0" FontSize="15"/>
             <ComboBox  Name="Palette_ComboBox" SelectedIndex="1" Height="25" Width="110"  Grid.Column="2" SelectionChanged="Palette_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
-          
+
             <Label Content="측정 온도 범위" Grid.Column="3" Height="30" Width="110"  Margin="-20,-30,0,0" FontSize="13"/>
             <ComboBox Name="comboRanges" SelectedIndex="0" Height="25" Width="120"  Grid.Column="3"  SelectionChanged="comboRanges_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
 
@@ -146,16 +158,22 @@
                     <RadioButton Width="60" Height="40" Name="Gradient" ToolTip="Gradient" Focusable="False"
                     Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Gradient">
                     </RadioButton>
-                    <RadioButton Width="60" Height="40" Name="HaarCascade" ToolTip="HaarCascade" Focusable="False"
-                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Haar&#10;Cascade">
+                    <RadioButton Width="60" Height="40" Name="Blur" ToolTip="Blur" Focusable="False"
+                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Blur">
                     </RadioButton>
+                    <!--<RadioButton Width="60" Height="40" Name="Corner" ToolTip="Corner" Focusable="False"
+                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Corner">
+                    </RadioButton>-->
+                    <!--<RadioButton Width="60" Height="40" Name="HaarCascade" ToolTip="HaarCascade" Focusable="False"
+                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Haar&#10;Cascade">
+                    </RadioButton>-->
                 </StackPanel>
-                
+
             </StackPanel>
         </Grid>
 
 
-        
+
         <Image Grid.Column="1" Grid.Row="4" Width="180" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,10">
             <Image.Source>
                 <BitmapImage UriSource="img/mds.png"/>
