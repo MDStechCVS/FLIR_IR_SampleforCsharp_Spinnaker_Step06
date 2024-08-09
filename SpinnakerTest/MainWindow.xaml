@@ -60,7 +60,7 @@
                 <ColumnDefinition Width="181*"/>
             </Grid.ColumnDefinitions>
             <Label Content="Size" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0"/>
-            <Slider x:Name="Sizeval" ValueChanged="SizeSlider_ValueChanged"  IsSnapToTickEnabled="True" VerticalAlignment="Top" Margin="81,0,271,0" Width="240" Grid.ColumnSpan="2"/>
+            <Slider x:Name="Sizeval" ValueChanged="SizeSlider_ValueChanged"  IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="81,0,0,0" Width="240" Grid.ColumnSpan="2"/>
 
             <Label Content="1" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,10,0,0"/>
             <Label Content="10" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="70,10,0,0" Grid.Column="1"/>
@@ -85,9 +85,6 @@
             <Label Content="측정 온도 범위" Grid.Column="3" Height="30" Width="110"  Margin="-20,-30,0,0" FontSize="13"/>
             <ComboBox Name="comboRanges" SelectedIndex="0" Height="25" Width="120"  Grid.Column="3"  SelectionChanged="comboRanges_SelectionChanged" HorizontalAlignment="Left"  Margin="0,25,0,0"/>
 
-            <!--<Label Content="ImageProcessing" Grid.Column="4" Height="30" Width="110"  Margin="0,-30,0,0" FontSize="13"/>
-            <ComboBox Name="processingcombo" SelectedIndex="0" Height="25" Width="100"  Grid.Column="4"  SelectionChanged="processingcombo_SelectionChanged" HorizontalAlignment="Left"  Margin="10,25,0,0"/>-->
-
         </Grid>
 
 
@@ -101,31 +98,7 @@
         <Label x:Name="MinTemp" Content="0" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Left" FontSize="18" Width="60" Height="40" VerticalAlignment="Top" Margin="270,30,0,0"/>
 
 
-        <!--<Label Content="ROI Temp" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18" Margin="10,25,0,0" FontWeight="Bold" Height="40" VerticalAlignment="Center"/>
-
-        <Label Content="Max :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40" VerticalAlignment="Center" Margin="10,105,100,30"/>
-        <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40" VerticalAlignment="Center" Margin="10,105,50,30"/>
-        <Label x:Name="ROIMaxTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Center" Margin="70,105,90,30"/>
-        <Label Content="Min :" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Left" FontSize="18"  Height="40"  VerticalAlignment="Center" Margin="10,160,100,30"/>
-        <Label Content="°C " Grid.Column="1" Grid.Row="2" HorizontalAlignment="Right" FontSize="18"  Height="40"  VerticalAlignment="Center" Margin="10,160,50,30"/>
-        <Label x:Name="ROIMinTemp" Content="0" Grid.Column="1" Grid.Row="2" HorizontalAlignment="Center" FontSize="18" Width="60" Height="40" VerticalAlignment="Center" Margin="70,160,90,30"/>-->
-
-        <!--<Button x:Name="SetROIBox" Width="95" Height="30" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Content="Set ROI Box" Click="SetROIBox_Click" IsEnabled="False" />
-        <Button x:Name="ROIBox_Change" Width="95" Height="30" Grid.Column="1" Grid.Row="3" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="110,0,0,0" Content="ROI Change" IsEnabled="False" Click="ROIBox_Change_Click" />
-
-        <Grid x:Name="ROIChange" Grid.Column="1" Grid.Row="3" IsEnabled="False">
-
-            <Label Content="X  : " FontSize="18" Width="40" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 40, 0, 0"/>
-            <Label Content="Y  : " FontSize="18" Width="40" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="50, 80, 0, 0"/>
-            <Label Content="Width  : " FontSize="18" Width="80" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10, 120, 0, 0" />
-            <Label Content="Height : " FontSize="18" Width="80" Height="40" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10, 160, 0, 0"  />
-
-            <TextBox x:Name="ROI_X" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 45, 0, 0"/>
-            <TextBox x:Name="ROI_Y" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 85, 0, 0"/>
-            <TextBox x:Name="ROI_Width" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 125, 0, 0"/>
-            <TextBox x:Name="ROI_Height" Width="70" Height="30" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="100, 165, 0, 0"/>
-
-        </Grid>-->
+       
 
 
         <Grid  Grid.Column="0" Grid.Row="4" Grid.ColumnSpan="2">
@@ -143,42 +116,23 @@
                     <RadioButton Width="60" Height="40" Name="EdgeDetection" ToolTip="EdgeDetection" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Edge&#10;Detection">
                     </RadioButton>
-                    <!--<RadioButton Width="60" Height="40" Name="Rotate" ToolTip="Rotate" Focusable="False"
-                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Rotate">
-                    </RadioButton>-->
                     <RadioButton Width="60" Height="40" Name="Erosion" ToolTip="Erosion" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Erosion">
                     </RadioButton>
                     <RadioButton Width="60" Height="40" Name="Dilatation" ToolTip="Dilatation" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Dilatation">
                     </RadioButton>
-                    <RadioButton Width="60" Height="40" Name="Opening" ToolTip="Opening" Focusable="False"
-                    Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Opening">
-                    </RadioButton>
-                    <RadioButton Width="60" Height="40" Name="Gradient" ToolTip="Gradient" Focusable="False"
-                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Gradient">
-                    </RadioButton>
                     <RadioButton Width="60" Height="40" Name="Blur" ToolTip="Blur" Focusable="False"
                     Style="{StaticResource toggleStyle}" Checked="RadioButton_Checked" Content="Blur">
                     </RadioButton>
-                    <!--<RadioButton Width="60" Height="40" Name="Corner" ToolTip="Corner" Focusable="False"
-                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Corner">
-                    </RadioButton>-->
-                    <!--<RadioButton Width="60" Height="40" Name="HaarCascade" ToolTip="HaarCascade" Focusable="False"
-                    Style="{StaticResource toggleStyle}"  Checked="RadioButton_Checked" Content="Haar&#10;Cascade">
-                    </RadioButton>-->
                 </StackPanel>
 
             </StackPanel>
         </Grid>
-
-
-
         <Image Grid.Column="1" Grid.Row="4" Width="180" Height="40" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,0,0,10">
             <Image.Source>
                 <BitmapImage UriSource="img/mds.png"/>
             </Image.Source>
         </Image>
-
     </Grid>
 </Window>

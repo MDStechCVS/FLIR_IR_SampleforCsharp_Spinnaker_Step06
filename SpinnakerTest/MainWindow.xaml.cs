@@ -36,9 +36,6 @@ namespace SpinnakerTest
         MeasureSpotValue maxSpot;
         MeasureSpotValue minSpot;
 
-        // ROI 
-        MeasureBoxValue roiBox;
-
         // 카메라 해상도 
         private const int int640480 = 640 * 480;
         private const int int464348 = 464 * 348;
@@ -63,7 +60,6 @@ namespace SpinnakerTest
         private double maxBox = 0;
 
         private Bitmap bmp = null;
-        private int step = 64; // 총 4개의 간격으로 나눔
 
         private IManagedCamera connectcam = null; // 연결 된 카메라 객체 
         private string CamDevice = null;  //  연결 된 카메라 기종 
@@ -85,21 +81,10 @@ namespace SpinnakerTest
         private int _diff;
         private int _max;
 
-        //private int _scalemaxtemp;
-        //private int _scalemaxraw;
-        //private int _scalemintemp;
-        //private int _scaleminraw;
-
         private int _mintext = 0;
         private int _maxtext = 0;
 
         private bool _usecheckbox = true;
-
-        // 이미지 저장 경로 
-        private string savepath = @"D:\MDS_Save";
-
-        // NUC 
-        private bool bAutoShutter = true;
 
         // 영상처리
         private ConcurrentQueue<Bitmap> frameQueue = new ConcurrentQueue<Bitmap>();
@@ -115,6 +100,7 @@ namespace SpinnakerTest
 
         private ImageProcessing imagetogray = new ImageProcessing();
 
+        private object bitmapLock = new object();
         #endregion
 
         #region PUBLIC
@@ -154,146 +140,6 @@ namespace SpinnakerTest
 
         }
 
-        // 측정 영역 Box
-        public class MeasureBoxValue
-        {
-            int mX;
-            int mY;
-            int mWidth;
-            int mHeight;
-            int mPointIdx;
-            ushort mTempValue;
-            bool mIsVisible = false;
-
-            // Box 영역 내의 최대 최소 위치
-            int mMax_X;
-            int mMax_Y;
-            int mMin_X;
-            int mMin_Y;
-
-            // Box 영역 내의 최대, 최소 온도값
-            ushort mMax = 0;
-            ushort mMin = 65535;
-
-            Pen mPen = new Pen(System.Drawing.Color.AliceBlue);
-            Pen mPenMax = new Pen(System.Drawing.Color.Red);
-            Pen mPenMin = new Pen(System.Drawing.Color.Blue);
-
-            public MeasureBoxValue(System.Drawing.Color cl, int nX, int nY, int nWidth, int nHeight)
-            {
-                mPen.Color = cl;
-
-                mX = nX;
-                mY = nY;
-                mWidth = nWidth;
-                mHeight = nHeight;
-            }
-
-            public void MeasureBoxValueChange(int nX, int nY, int nWidth, int nHeight)
-            {
-                try
-                {
-                    // ROI 영역의 위치 및 크기 값을 변경 
-                    mX = nX;
-                    mY = nY;
-                    mWidth = nWidth;
-                    mHeight = nHeight;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine(ex);
-                }
-            }
-            public void ResetMinMax()
-            {
-                mMax_X = 0;
-                mMax_Y = 0;
-                mMin_X = 0;
-                mMin_Y = 0;
-
-                mMax = 0;
-                mMin = 65535;
-            }
-
-            public void SetXYWH(Graphics gr)
-            {
-                gr.DrawRectangle(mPen, mX, mY, mWidth, mHeight);  // Box
-            }
-
-            public void SetMax(Graphics gr)
-            {
-                gr.DrawRectangle(mPenMax, mMax_X - 3, mMax_Y - 3, 6, 6);  // Box Max
-            }
-
-            public void SetMin(Graphics gr)
-            {
-                gr.DrawRectangle(mPenMin, mMin_X - 3, mMin_Y - 3, 6, 6);  // Box Min
-            }
-
-            public void GetMinMax(out ushort usMin, out ushort usMax)
-            {
-                usMin = mMin;
-                usMax = mMax;
-            }
-
-            public void SetPointIndex(int nIndex)
-            {
-                mPointIdx = nIndex;
-            }
-
-            public int GetPointIndex()
-            {
-                return mPointIdx;
-            }
-
-            public void SetTempVal(ushort usTempValue)
-            {
-                mTempValue = usTempValue;
-            }
-
-            public bool GetIsVisible()
-            {
-                return mIsVisible;
-            }
-
-            public void SetIsVisible(bool bVal)
-            {
-                mIsVisible = bVal;
-            }
-
-            public bool CheckXYinBox(int nX, int nY, ushort tempVal)
-            {
-                bool rValue = false;
-
-                if ((mX <= nX) && ((mX + mWidth) >= nX))   // X 좌표가 범위 내에 있는지
-                {
-                    if ((mY <= nY) && ((mY + mHeight) >= nY))   // Y 좌표가 범위 내에 있는지
-                    {
-                        rValue = true;
-
-                        // 최대 최소 온도 체크 후 백업
-                        if (mMin >= tempVal)
-                        {
-                            mMin = tempVal;
-                            mMin_X = nX;
-                            mMin_Y = nY;
-                        }
-                        else if (mMax < tempVal)
-                        {
-                            mMax = tempVal;
-                            mMax_X = nX;
-                            mMax_Y = nY;
-                        }
-                    }
-                }
-                return rValue;
-            }
-        }
-
-
-
-
-
         #endregion
 
         #region STEP1 - 00. START / END 
@@ -308,9 +154,7 @@ namespace SpinnakerTest
             minSpot = new MeasureSpotValue(System.Drawing.Color.LightSkyBlue);
 
             Palette_ComboBox_Initialize();
-            processsldInitialize();
-
-
+            sliderInitialize();
 
             StartImageProcessingThread();
         }
@@ -361,6 +205,10 @@ namespace SpinnakerTest
             {
                 SetCamera(args.Camera, false, args.Interface);
                 connectcam = args.Camera;
+
+                // 라디오 버튼 선택
+                None.IsChecked = true;
+                selectedItem = "None";
             }
 
             camSelControl.Close();
@@ -638,8 +486,11 @@ namespace SpinnakerTest
                     CamDevice = "A400";
                 }
 
+
                 // 카메라 별 측정 온도 값 구성 및 설정 
                 TempRangeConf(nodeMap);
+
+     
             }
             catch (Exception ex)
             {
@@ -734,11 +585,6 @@ namespace SpinnakerTest
                 //y 는 image의 height
                 int x, y;
 
-                // Box 내 영역의 최대 최소 온도값 초기화
-                if (roiBox != null && roiBox.GetIsVisible())
-                {
-                    roiBox.ResetMinMax();
-                }
 
                 for (int a = 0; a < data.Length; a++)
                 {
@@ -762,15 +608,7 @@ namespace SpinnakerTest
                         rVal = 0;
                     }
 
-                    if (selectedItem == "None") //영상처리가 none인 경우 
-                    {
-                        col = GenerateColorPalette(rVal);
-                    }
-                    else
-                    {
-                        col = GenerateColorPalette(rVal);
-                        //processcol = GenerateColorGreyPalette(rVal);
-                    }
+                    col = GenerateColorPalette(rVal);
 
                     bmp.SetPixel(x, y, col);
                 }
@@ -933,9 +771,6 @@ namespace SpinnakerTest
 
         }
         #endregion
-
-
-
 
         #region STEP1 - 04. CAMERA TEMPERATURE RANGE CONFIGURATION 
         private void TempRangeConf(INodeMap nodeMap)
@@ -1109,10 +944,10 @@ namespace SpinnakerTest
                 Palette_ComboBox.Items.Add("Spring");
                 Palette_ComboBox.Items.Add("Summer");
 
-                // 기본 설정 팔레트는 Rainbow
+                // 기본 설정 팔레트는 Iron
                 Palette_ComboBox.SelectedIndex = 1;
                 Current_Palette = "Iron";
-                GetRGBfrom16bit(MDSPALETTE.Plasma_palette);
+                GetRGBfrom16bit(MDSPALETTE.iron_palette);
             }
             catch (Exception ex)
             {
@@ -1144,8 +979,6 @@ namespace SpinnakerTest
 
             switch (Current_Palette)
             {
-                case "Rainbow":
-                    break;
                 case "Plasma":
                     GetRGBfrom16bit(MDSPALETTE.Plasma_palette);
                     break;
@@ -1182,6 +1015,7 @@ namespace SpinnakerTest
                 case "Summer":
                     GetRGBfrom16bit(MDSPALETTE.Summer_palette);
                     break;
+                    
                 default:
                     Current_Palette = "Iron";
                     break;
@@ -1191,7 +1025,6 @@ namespace SpinnakerTest
         private void GetRGBfrom16bit(List<string> pal)
         {
             // 16진수 값을 R, G, B로 분리하여 PaletteColorMap에 저장 
-
             // 기존 Palette에 관한 ColorMap 값 초기화 
             PaletteColorMap.Clear();
 
@@ -1207,63 +1040,19 @@ namespace SpinnakerTest
                 // Color 객체로 변환하여 리스트에 추가
                 PaletteColorMap.Add(Color.FromArgb(r, g, b));
             }
-
         }
         #endregion
 
         #region STEP2 - 03. APPLY COLORMAP
-
-
         private Color GenerateColorPalette(int rVal)
         {
             try
             {
                 Color col = new Color();
 
-                if (Current_Palette != "Iron")
+                if (PaletteColorMap.Count > rVal)
                 {
-                    if (_usecheckbox == false) // 팔레트 구성이 자동이 아닌 경우 
-                    {
-                        if (PaletteColorMap.Count <= rVal)
-                        {
-                            col = PaletteColorMap[PaletteColorMap.Count - 1];
-
-                        }
-                        else
-                        {
-                            col = PaletteColorMap[rVal];
-                        }
-
-                    }
-                    else
-                    {
-                        if (PaletteColorMap.Count > rVal)
-                        {
-
-                            col = PaletteColorMap[rVal];
-
-                        }
-                    }
-                }
-                else
-                {
-                    // Rainbow Palette
-                    if (rVal < step) //Blue to Cyan
-                    {
-                        col = Color.FromArgb(0, rVal * 4, 255);
-                    }
-                    else if (rVal < step * 2) //Cyan to Green
-                    {
-                        col = Color.FromArgb(0, 255, 255 - (rVal - step) * 4);
-                    }
-                    else if (rVal < step * 3) //Green to Yellow
-                    {
-                        col = Color.FromArgb((rVal - step * 2) * 4, 255, 0);
-                    }
-                    else //Yellow to Red
-                    {
-                        col = Color.FromArgb(255, 255 - (rVal - step * 3) * 4, 0);
-                    }
+                    col = PaletteColorMap[rVal];
                 }
 
                 return col;
@@ -1279,66 +1068,11 @@ namespace SpinnakerTest
                 return col;
 
             }
-
-        }
-
-        private Color GenerateColorGreyPalette(int rVal)
-        {
-            try
-            {
-                Color col = new Color();
-                col = Color.FromArgb(rVal, rVal, rVal);
-
-                return col;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                Console.WriteLine("rVal : " + rVal);
-
-                Color col = new Color();
-                col = Color.FromArgb(255, 255, 255);
-
-                return col;
-
-            }
-
         }
 
         #endregion
 
-
-        #region STEP3 - 02. TEMPERATURE CONVERTER
-        // 섭씨 온도를 uint 값으로 변환하여 반환 
-        private int TempChange(int temp)
-        {
-            try
-            {
-                double _temp = ((temp + 273.15) / mConvertOffsetVal);
-
-                return (int)_temp;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-                return 0;
-            }
-        }
-
-
-        #endregion
-
-
-
-
-
-
-
-        #region STEP6 -01. IMAGE PROCESS
-
-        #endregion
-      
-        private object bitmapLock = new object();
+        #region STEP3 -01. IMAGE PROCESS
         private void StartImageProcessingThread()
         {
             Task.Run(() =>
@@ -1402,7 +1136,6 @@ namespace SpinnakerTest
                 }
             });
         }
-
         private Bitmap ProcessFrame(Bitmap frame)
         {
             // Bitmap의 복사본 생성
@@ -1416,49 +1149,102 @@ namespace SpinnakerTest
                     case "None": break;
                     case "Thresholding": // 이진화
                         frameCopy = processing.Thresholding(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Visible;
                         break;
                     case "Grayscale": // 그레이스케일
                         frameCopy = processing.Grayscale(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "EdgeDetection": // 엣지 검출 
                         frameCopy = processing.Edgedetection(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Erosion": // 침식
                         frameCopy = processing.Erosion(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
                     case "Dilatation": // 팽창
                         frameCopy = processing.Dilatation(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                         break;
-                    case "Opening": // 침식 연산 후 팽창 
-                        frameCopy = processing.Opening(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                        break;
-                    case "Gradient": // 팽창 연산 후 침식 
-                        frameCopy = processing.Gradient(frameCopy);
-                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                        break;
-                    case "HaarCascade": // 객체 검출 
-                                        //frameCopy = processing.Gradient(frameCopy);
-                                        //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                    case "Blur":
+                    case "Blur": // 블러 
                         frameCopy = processing.Blur(frameCopy);
                         break;
-
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
             }
-
             return frameCopy;
         }
 
+        private void sliderInitialize()
+        {
+            try
+            {
+                //threshold 값 지정 
+                processingval.Maximum = 255;
+                processingval.Minimum = 0;
+                processingval.Value = 100;
+
+                Sizeval.Maximum = 10;
+                Sizeval.Minimum = 1;
+                Sizeval.Value = 3;
+
+                // 영상처리를 선택하지 않은 상태로 초기화 - threshold 값 조정 UI 숨기기
+                selectedItem = "None";
+                ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
+                SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+            }
+        }
+        #endregion
+
+        #region STEP3 - 02. IMAGE PROCESS CONTROL EVENT
+        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
+            processing.thresholdvalue = sliderValue;
+        }
+
+        private void RadioButton_Checked(object sender, RoutedEventArgs e)
+        {
+            RadioButton btn = (RadioButton)sender;
+
+            if (connectcam == null)
+            {
+                // 라디오 버튼의 선택을 취소합니다.
+                btn.IsChecked = false;
+                selectedItem = "None"; 
+                return;
+            }
+
+            selectedItem = btn.Name;
+            thresholdslidershow(selectedItem);
+
+            if (None.IsChecked == false) // none이 아닌 경우
+            {
+                Palette_ComboBox.SelectedIndex = 1;
+                Current_Palette = "Iron";
+            }
+         
+
+        }
+        private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
+        {
+            try
+            {
+                int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
+                processing.sizevalue = sliderValue;
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
+
+        #endregion
+
+        #region STEP3 - 03. IMAGE PROCESS DISPLAY
 
         private void DisplayFrame(Bitmap frame)
         {
@@ -1470,7 +1256,6 @@ namespace SpinnakerTest
                 if (bmpSrc.CanFreeze)
                     bmpSrc.Freeze();
 
-                //this.backgroundImageBrush.ImageSource = bmpSrc;
                 this.backgroundProcessImageBrush.ImageSource = bmpSrc;
 
                 DeleteObject(hBitmap);
@@ -1479,48 +1264,6 @@ namespace SpinnakerTest
             {
                 Console.WriteLine(ex);
             }
-        }
-
-
-        private void processsldInitialize()
-        {
-            try
-            {
-
-                //threshold 값 지정 
-                processingval.Maximum = 255;
-                processingval.Minimum = 0;
-                processingval.Value = 100;
-
-                Sizeval.Maximum = 10;
-                Sizeval.Minimum = 1;
-                Sizeval.Value = 3; 
-
-                // 영상처리를 선택하지 않은 상태로 초기화 - threshold 값 조정 UI 숨기기
-                selectedItem = "None";
-                ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                SizeGrid.Visibility = System.Windows.Visibility.Collapsed;
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex);
-            }
-
-        }
-
-        private void Slider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
-            processing.thresholdvalue = sliderValue;
-        }
-
-        private void RadioButton_Checked(object sender, RoutedEventArgs e)
-        {
-            RadioButton btn = (RadioButton)sender;
-            selectedItem = btn.Name;
-            thresholdslidershow(selectedItem); 
-
-
         }
 
         private void thresholdslidershow(string item)
@@ -1552,30 +1295,13 @@ namespace SpinnakerTest
                     ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                     SizeGrid.Visibility = System.Windows.Visibility.Visible;
                     break;
-                case "Opening": // 침식 연산 후 팽창 
-                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
-                    break;
-                case "Dilatation": // 팽창
-                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                    SizeGrid.Visibility = System.Windows.Visibility.Visible;
-                    break;
                 case "Blur":
                     SizeGrid.Visibility = System.Windows.Visibility.Visible;
                     break;
-
-                    //case "HaarCascade": // 객체 검출 
-                    //    //ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
-                    //    break;
-
             }
         }
 
-        private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
-        {
-            int sliderValue = (int)e.NewValue; // Slider 값은 double 타입이므로 int로 변환
-            processing.sizevalue = sliderValue;
-        }
+        #endregion
 
     }
 }
