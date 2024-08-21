@@ -84,8 +84,6 @@ namespace SpinnakerTest
         private int _mintext = 0;
         private int _maxtext = 0;
 
-        private bool _usecheckbox = true;
-
         // 영상처리
         private ConcurrentQueue<Bitmap> frameQueue = new ConcurrentQueue<Bitmap>();
         private bool isProcessing = true;
@@ -157,6 +155,7 @@ namespace SpinnakerTest
             sliderInitialize();
 
             StartImageProcessingThread();
+           
         }
 
         private void Window_Closed(object sender, EventArgs e)
@@ -696,7 +695,6 @@ namespace SpinnakerTest
 
                                 ushort sample = BitConverter.ToUInt16(rawImage.ManagedData, a);
 
-
                                 // 최고, 최저 온도 값 계산 및 좌표 계산 
                                 if (min16 >= sample)
                                 {
@@ -742,9 +740,7 @@ namespace SpinnakerTest
                 }
 
                 Thread.Sleep(1);
-
             }
-
         }
 
         // Point index에서 X, Y, 좌표를 알아낸다.
@@ -1140,7 +1136,6 @@ namespace SpinnakerTest
         {
             // Bitmap의 복사본 생성
             Bitmap frameCopy = new Bitmap(frame);
-
             try
             {
                 // 영상 처리 코드 수행
@@ -1156,10 +1151,10 @@ namespace SpinnakerTest
                     case "EdgeDetection": // 엣지 검출 
                         frameCopy = processing.Edgedetection(frameCopy);
                         break;
-                    case "Erosion": // 침식
+                    case "Erosion": // 팽창
                         frameCopy = processing.Erosion(frameCopy);
                         break;
-                    case "Dilatation": // 팽창
+                    case "Dilatation": // 침식
                         frameCopy = processing.Dilatation(frameCopy);
                         break;
                     case "Blur": // 블러 
@@ -1226,9 +1221,8 @@ namespace SpinnakerTest
                 Palette_ComboBox.SelectedIndex = 1;
                 Current_Palette = "Iron";
             }
-         
-
         }
+
         private void SizeSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             try
@@ -1291,11 +1285,12 @@ namespace SpinnakerTest
                     ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                     SizeGrid.Visibility = System.Windows.Visibility.Visible;
                     break;
-                case "Gradient": // 팽창 연산 후 침식 
+                case "Dilatation": // 팽창
                     ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                     SizeGrid.Visibility = System.Windows.Visibility.Visible;
                     break;
                 case "Blur":
+                    ProcessGrid.Visibility = System.Windows.Visibility.Collapsed;
                     SizeGrid.Visibility = System.Windows.Visibility.Visible;
                     break;
             }

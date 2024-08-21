@@ -35,7 +35,6 @@ namespace SpinnakerTest
             {
 
             }
-            
             return processBitmap;
         }
 
@@ -274,6 +273,7 @@ namespace SpinnakerTest
 
         #endregion
 
+      
 
     }
 }
